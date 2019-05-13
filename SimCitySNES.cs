@@ -334,7 +334,7 @@ namespace CrowdControl.Games.Packs
                             }
                             return result;
                         },
-                        TimeSpan.FromSeconds(20));
+                        TimeSpan.FromSeconds(30));
                     return;
 
                     }
