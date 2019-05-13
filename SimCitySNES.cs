@@ -303,7 +303,7 @@ namespace CrowdControl.Games.Packs
 
         public override List<(string, Action)> MenuActions => new List<(string, Action)>();
 
-        public override Game Game { get; } = new Game(29, "Sim City", "SimCitySNES", "SNES", ConnectorType.SNESConnector);
+        public override Game Game { get; } = new Game(69, "Sim City", "SimCity", "SNES", ConnectorType.SNESConnector);
 
         protected override bool IsReady(EffectRequest request) => Connector.Read8(ADDR_GAMEOVER, out byte b) && (b == 0x00);
 
@@ -349,7 +349,7 @@ namespace CrowdControl.Games.Packs
                             if (result) { 
                                 LockUI();
                                 _forcebulldoze = true;
-                                Connector.SendMessage($"{request.DisplayViewer} enabled the demon season."); 
+                                Connector.SendMessage($"{request.DisplayViewer} has enabled the forced bulldoze."); 
                             }
                             return result;
                         },
