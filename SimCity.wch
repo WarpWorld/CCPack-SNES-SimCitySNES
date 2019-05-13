@@ -1,0 +1,56 @@
+SystemID SNES
+007E03F5	b	h	0	System Bus	Gift - Slot 1
+007E03F6	b	h	0	System Bus	Gift - Slot 2
+007E03F7	b	h	0	System Bus	Gift - Slot 3
+007E03F8	b	h	0	System Bus	Gift - Slot 4
+007E0B55	b	s	0	System Bus	Month
+007E0B53	w	s	0	System Bus	Year
+007E0B56	b	h	0	System Bus	Poke to 1 for demon season
+00020D	b	h	0	WRAM	Current Build Item
+00023C	b	h	0	WRAM	Poke to make action happen single square only
+000195	b	h	0	WRAM	Option Flags
+000197	b	b	0	WRAM	Disaster Flags
+7E1FF6	b	h	0	WRAM	GameOver Poke FF also if this value isnt 00 dont send effects
+000193	b	h	0	WRAM	Speed
+000D79	b	s	0	WRAM	Trans Fund
+000D7B	b	s	0	WRAM	Police Fund
+000D7D	b	s	0	WRAM	Fire Fund
+000D6D	b	s	0	WRAM	
+000D6D	b	s	0	WRAM	Tax Rate (doesn't keep)
+0001EB	b	h	0	WRAM	Cursor X value
+0001ED	b	h	0	WRAM	Cursor Y value
+007E0B9D	d	h	0	System Bus	Money
+007E0DE1	b	u	0	System Bus	Disapproval Rating
+007E0DDF	b	s	0	System Bus	Approval Rating
+000211	b	h	0	WRAM	Last placement X
+000213	b	h	0	WRAM	Last placement Y
+0001BF	b	h	0	WRAM	Current Screen Zone
+013FB0	b	h	0	WRAM	
+015E20	b	h	0	WRAM	Water Bottom
+010200	b	h	0	WRAM	Start of map 120x120
+015FBF	b	h	0	WRAM	End of map
+007E0C0F	w	h	0	System Bus	EarthQuake
+007E0A8A	b	h	0	System Bus	All the pokes below, place things in the top left corner of map
+007E0A96	b	h	0	System Bus	Poke 01 for ship wreck
+007E0A91	b	h	0	System Bus	Poke 01 for bowse no warning
+007E0A90	b	h	0	System Bus	Poke for helcopter
+007E0A8B	b	h	0	System Bus	Poke for tornado
+007E0A8D	b	h	0	System Bus	Poke for plane
+007E0E05	b	h	0	System Bus	Poke for amusement park/casino
+007E0E0A	b	h	0	System Bus	Poke for fire station
+007E0E0A	b	h	0	System Bus	Poke for police
+007E0E24	b	h	0	System Bus	Poke for large park
+007E0E1C	b	h	0	System Bus	Poke for windmill
+000001C0	w	h	0	System Bus	Does something with cam
+0000029A	w	h	0	System Bus	Visual selection for items starts here
+00000389	b	h	0	System Bus	Poke to display message
+00000395	b	h	0	System Bus	Poke to get helper message
+00000397	b	h	0	System Bus	Helper message type (30 is ufo)
+00020B8E	b	h	0	System Bus	around here is population
+00019826	b	h	0	System Bus	start of messages
+00215B	b	h	0	WRAM	icons on left?
+7E029B	b	h	0	WRAM	Bulldoze selected or not
+00029C	b	h	0	WRAM	
+007E0A80	b	u	0	System Bus	
+007E0387	b	h	0	System Bus	Is message displayed
+
