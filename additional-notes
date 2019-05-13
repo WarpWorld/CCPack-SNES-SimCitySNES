@@ -1,0 +1,77 @@
+000397 Values - Note: Warnings of diasters do not cause them
+	00 - Normal everythings fine 
+	01 - Town 
+	02 - City 
+	03 - Capital 
+	04 - Metropolis 
+	05 - Megalopolis
+	06 - Traffic Jam Warning
+	07 - Crime advice
+	08 - Crime Warning
+	09 - Bowser Attack 
+	0A - Earth Quake
+	0B - SimCity savings & Load (GIFT)
+	0C - Scale model of City
+	0D - Park or Casino (GIFT)
+	0E - Zoo (GIFT)
+	0F - Advice / Housing Costs
+	10 - Land Fill (GIFT)
+	11 - Police Headquarters (GIFT)
+	12 - Fire Department Headquarters (GIFT)
+	13 - Water Fountain (GIFT)
+	14 - Mario Statue (GIFT)
+	15 - Advice / Pollution
+	16 - Expo (GIFT)
+	17 - Sister-City Windmill (GIFT)
+	18 - Library (GIFT)
+	19 - Large Park (GIFT)
+	1A - Train Station (GIFT)
+	1B - Intro Message explaing Dr. Wright
+	1C - More tips on using tools
+	1D - Poor city planning message.
+	1E - Polution Warning
+	1F - Loan Message
+	20 - Fire Warning
+	21 - Flood Warning
+	22 - Plane Crash Warning
+	23 - Tornado Warning
+	24 - Nuclear Disaster Warning
+	25 - Jealous Message from Dr. Wright
+	26 - Congrats on getting 30,000
+	27 - Poor planing tips again.
+	28 - Traffic Jam Advice
+	29 - Tax Advice
+	2A - Unemployment Advice
+	2B - Shipwreck Warning
+	2C - Your House (GIFT)
+	2D - Diaster Warning (who knows where/what)
+	2E - RCI Graph advice
+	2F - Congrats on being a great Mayor!
+	30 - UFO Warning 
+	31 - Congrats on getting 100,000
+	32 - Planning budget advice
+	33 - Maintence Advice
+
+
+
+7E03F5 - Slot 1 
+Gift IDs
+	00 - Nothing (blank)
+	01 - My House 
+	02 - Bank 
+	03 - Park
+	04 - Zoo
+	05 - Casino
+	06 - Land Fill
+	07 - Police Department
+	08 - Fire Department
+	09 - Fountain
+	0A - Mario Statue
+	0B - Expo
+	0C - Windmill
+	0D - Library
+	0E - Park
+	0F - Train Station
+
+
+
