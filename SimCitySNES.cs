@@ -16,6 +16,8 @@ Take a look at  ClearUI() and LockUI(). Specifcally check it out in SetBuilding.
 Look at the way we add months. Right now RangeAdd is capped at 11 since 12 would be a year and be dumb. But also if they say move 5 months up, and its november. It should put them 
 in month 4 of the next year. 
 
+Would also be nice to set forcebulldoze to pause when they are in menus and outside of the normal menu. ADDR_GAMESTATE should be 0, otherwise if its anything else it should be paused.
+
 
 */
 
@@ -41,7 +43,7 @@ namespace CrowdControl.Games.Packs
         private const uint ADDR_BUILD_SELECTION_BASE = 0x7E029B;
         private const uint ADDR_BUILD_FORCE = 0x7E023C; //only works on bulldoze, roads, rails and parks
         private const uint ADDR_OPTIONS = 0x7E0195;
-        private const uint ADDR_GAMEOVER = 0x7E1FF6; //poke FF to gameover
+        private const uint ADDR_GAMESTATE = 0x7E1FF6; //poke FF to gameover
         private const uint ADDR_GAMESPEED = 0x7E0193; //00 fastest - 03 stop
         private const uint ADDR_DISASTER = 0x7E0197;
         //TAXES
@@ -305,7 +307,7 @@ namespace CrowdControl.Games.Packs
 
         public override Game Game { get; } = new Game(69, "Sim City", "SimCity", "SNES", ConnectorType.SNESConnector);
 
-        protected override bool IsReady(EffectRequest request) => Connector.Read8(ADDR_GAMEOVER, out byte b) && (b == 0x00);
+        protected override bool IsReady(EffectRequest request) => Connector.Read8(, out byte b) && (b == 0x00);
 
         protected override void RequestData(DataRequest request) => Respond(request, request.Key, null, false, $"Variable name \"{request.Key}\" not known");
 
@@ -317,6 +319,8 @@ namespace CrowdControl.Games.Packs
                 return;
             }
 
+            sbyte sign = 1;
+
             string[] codeParams = request.FinalCode.Split('_');
             switch (codeParams[0])
             {
@@ -324,7 +328,7 @@ namespace CrowdControl.Games.Packs
                 case "demonseason":
                     {
                     StartTimed(request,
-                        () => (!_demonSeason && Connector.Read8(ADDR_GAMEOVER, out byte b) && (b == 0x00) && Connector.Read8(ADDR_GAMESPEED, out byte c) && (c != 03)),
+                        () => (!_demonSeason && Connector.Read8(ADDR_GAMESTATE, out byte b) && (b == 0x00) && Connector.Read8(ADDR_GAMESPEED, out byte c) && (c != 03)),
                         () =>
                         {
                             bool result = Connector.Write8(ADDR_DEMON_SEASON, 0x01);
@@ -342,7 +346,7 @@ namespace CrowdControl.Games.Packs
                 case "forcebulldoze":
                     {
                     StartTimed(request,
-                        () => (!_forcebulldoze && Connector.Read8(ADDR_GAMEOVER, out byte b) && (b == 0x00)),
+                        () => (!_forcebulldoze && Connector.Read8(ADDR_GAMESTATE, out byte b) && (b == 0x00)),
                         () =>
                         {
                             bool result = Connector.Freeze8(ADDR_BUILD_ITEM, 0x00) && Connector.Freeze8(ADDR_BUILD_FORCE, 0x01);
@@ -362,7 +366,7 @@ namespace CrowdControl.Games.Packs
                     {
                     byte seconds = (byte)request.AllItems[1].Reduce(_player);
                     StartTimed(request,
-                        () => (!_shakescreen && Connector.Read8(ADDR_GAMEOVER, out byte b) && (b == 0x00) && Connector.Read8(ADDR_SCREENSHAKE, out byte c) && (c == 0x00)),
+                        () => (!_shakescreen && Connector.Read8(ADDR_GAMESTATE, out byte b) && (b == 0x00) && Connector.Read8(ADDR_SCREENSHAKE, out byte c) && (c == 0x00)),
                         () =>
                         {
                             bool result = Connector.Freeze8(ADDR_SCREENSHAKE, 0x01);
@@ -382,7 +386,7 @@ namespace CrowdControl.Games.Packs
                 case "gameover":
                     {
                         TryEffect(request,
-                            () => Connector.Write8(ADDR_GAMEOVER, 0xff),
+                            () => Connector.Write8(ADDR_GAMESTATE, 0xff),
                             () => true,
                             () =>
                             {
@@ -519,11 +523,16 @@ namespace CrowdControl.Games.Packs
                         return;
                     }
 
+
+
+                case "takemoney":
+                    sign = -1;
+                    goto case "givemoney";
                 case "givemoney":
                     {
                         byte money = (byte)request.AllItems[1].Reduce(_player);
                         TryEffect(request,
-                            () => Connector.RangeAdd16(ADDR_MONEY, money, 0, 9999, false),
+                            () => Connector.RangeAdd16(ADDR_MONEY, money * sign, 0, 9999, false),
                             () => true,
                             () =>
                             {
@@ -531,18 +540,7 @@ namespace CrowdControl.Games.Packs
                             });
                         return;
                     }
-                case "takemoney":
-                    {
-                        byte money = (byte)request.AllItems[1].Reduce(_player);
-                        TryEffect(request,
-                            () => Connector.RangeAdd16(ADDR_MONEY, -money, 0, 9999, false),
-                            () => true,
-                            () =>
-                            {
-                                Connector.SendMessage($"{request.DisplayViewer} took {money} money.");
-                            });
-                        return;
-                    }
+
 
                 case "increasetransport":
                     {
