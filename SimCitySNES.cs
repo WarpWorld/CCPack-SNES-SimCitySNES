@@ -7,13 +7,13 @@ using JetBrains.Annotations;
 /*
 TODO: 
 
-The give and take money only works if the RangeAdd16 is 9999. The value can go much higher.
+-The give and take money only works if the RangeAdd16 is 9999. The value can go much higher.
 
-I'd like to allow the viewer to input up to 99,999 for cash and then X it by 10. So that they are always taking away 10 dollars or more.
+-I'd like to allow the viewer to input up to 99,999 for cash and then X it by 10. So that they are always taking away 10 dollars or more.
 
 Take a look at  ClearUI() and LockUI(). Specifcally check it out in SetBuilding. I know I could do that better with an array and cycle but not sure if we had something else?
 
-Look at the way we add months. Right now RangeAdd is capped at 11 since 12 would be a year and be dumb. But also if they say move 5 months up, and its november. It should put them 
+-Look at the way we add months. Right now RangeAdd is capped at 11 since 12 would be a year and be dumb. But also if they say move 5 months up, and its november. It should put them 
 in month 4 of the next year. 
 
 Would also be nice to set forcebulldoze to pause when they are in menus and outside of the normal menu. ADDR_GAMESTATE should be 0, otherwise if its anything else it should be paused.
@@ -731,8 +731,8 @@ namespace CrowdControl.Games.Packs
         }
 
 
-        private void ClearUI()
-        {
+        private void ClearUI() => Connector.Write(0x7E029B, new byte[0x7E02AB - 0x7E029B]);
+        /*{
             Connector.Write8(0x7E029B, 0x00);
             Connector.Write8(0x7E029C, 0x00);
             Connector.Write8(0x7E029D, 0x00);
@@ -749,10 +749,10 @@ namespace CrowdControl.Games.Packs
             Connector.Write8(0x7E02A8, 0x00);
             Connector.Write8(0x7E02A9, 0x00);
             Connector.Write8(0x7E02AA, 0x00);
-        }
+        }*/
 
-        private void LockUI()
-        {
+        private void LockUI() => Connector.Write(0x7E029B, Enumerable.Repeat<byte>(0x01, 0x7E02AB - 0x7E029B).ToArray());
+        /*{
             Connector.Write8(0x7E029B, 0x01);
             Connector.Write8(0x7E029C, 0x01);
             Connector.Write8(0x7E029D, 0x01);
@@ -769,7 +769,7 @@ namespace CrowdControl.Games.Packs
             Connector.Write8(0x7E02A8, 0x01);
             Connector.Write8(0x7E02A9, 0x01);
             Connector.Write8(0x7E02AA, 0x01);
-        }
+        }*/
 
 
         private bool StopAll()
