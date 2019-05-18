@@ -628,9 +628,9 @@ namespace CrowdControl.Games.Packs
                             () => Connector.Read8(ADDR_MONTH, out cMonth),
                             () =>
                             {
-                                cMonth += toAdd;
+                                cMonth += (byte)(toAdd - 1u); //subtract to get to 0-indexed
                                 uint years = cMonth / 12u;
-                                return Connector.Write8(ADDR_MONTH, (byte) (cMonth % 12u)) &&
+                                return Connector.Write8(ADDR_MONTH, (byte)((cMonth % 12u) + 1)) &&
                                        ((years == 0) || Connector.RangeAdd16(ADDR_YEAR, years, 1, 9999, false));
                             },
                             () =>
