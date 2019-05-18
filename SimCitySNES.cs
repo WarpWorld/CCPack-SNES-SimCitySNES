@@ -251,8 +251,8 @@ namespace CrowdControl.Games.Packs
                 {
                     //give and take sorta work. would like to give the player * 100 what the input is
                     //sometimes it doesnt take, not sure if its tripping up somewhere
-                    new Effect("Give Money", "givemoney", new[] {"quantity100"}),
-                    new Effect("Take Money", "takemoney", new[] {"quantity100"}),
+                    new Effect("Give Money", "givemoney", new[] {"quantity999999"}),
+                    new Effect("Take Money", "takemoney", new[] {"quantity999999"}),
                     new Effect("Choose a Disaster ", "disaster", ItemKind.Folder),
                     new Effect("Give gift of ", "present", ItemKind.Folder),
                     new Effect("Switch building item to ", "building", ItemKind.Folder),
@@ -293,6 +293,7 @@ namespace CrowdControl.Games.Packs
         public override List<ItemType> ItemTypes => new List<ItemType>(new[]
         {
             new ItemType("Quantity", "quantity100", ItemType.Subtype.Slider, "{\"min\":1,\"max\":100}"),
+            new ItemType("Quantity", "quantity999999", ItemType.Subtype.Slider, "{\"min\":1,\"max\":999999}"),
             new ItemType("Quantity", "quantity11", ItemType.Subtype.Slider, "{\"min\":1,\"max\":11}")
         });
 
@@ -529,19 +530,20 @@ namespace CrowdControl.Games.Packs
                     sign = -1;
                     goto case "givemoney";
                 case "givemoney":
-                    {
-                        byte money = (byte)request.AllItems[1].Reduce(_player);
-                        TryEffect(request,
-                            () => Connector.RangeAdd16(ADDR_MONEY, money * sign, 0, 9999, false),
-                            () => true,
-                            () =>
-                            {
-                                Connector.SendMessage($"{request.DisplayViewer} sent you {money} money.");
-                            });
-                        return;
-                    }
-
-
+                {
+                    byte money = (byte) request.AllItems[1].Reduce(_player);
+                    long newTotal = 0;
+                    TryEffect(request,
+                        () =>
+                        {
+                            if (!Connector.Read24LE(ADDR_MONEY, out uint value)) { return false; }
+                            newTotal = value + (money * sign);
+                            return CheckRange(newTotal, out _, 0, 999999, false);
+                        },
+                        () => Connector.Write24LE(ADDR_MONEY, (uint) newTotal),
+                        () => { Connector.SendMessage($"{request.DisplayViewer} sent you {money} money."); });
+                    return;
+                }
                 case "increasetransport":
                     {
                         byte tax = (byte)request.AllItems[1].Reduce(_player);
