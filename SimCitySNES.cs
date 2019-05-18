@@ -20,23 +20,21 @@ Would also be nice to set forcebulldoze to pause when they are in menus and outs
 
 
 */
-
-
 namespace CrowdControl.Games.Packs
 {
     [UsedImplicitly]
-    public class SimCity : SNESEffectPack
+    public class SimCitySNES : SNESEffectPack
     {
         [NotNull]
         private readonly IPlayer _player;
 
-        public SimCity([NotNull] IPlayer player, [NotNull] Func<CrowdControlBlock, bool> responseHandler, [NotNull] Action<object> statusUpdateHandler) : base(responseHandler, statusUpdateHandler) => _player = player;
+        public SimCitySNES([NotNull] IPlayer player, [NotNull] Func<CrowdControlBlock, bool> responseHandler, [NotNull] Action<object> statusUpdateHandler) : base(responseHandler, statusUpdateHandler) => _player = player;
 
         private const uint ADDR_GIFT1 = 0x7E03F5;
         private const uint ADDR_GIFT2 = 0x7E03F6;
         private const uint ADDR_GIFT3 = 0x7E03F7;
         private const uint ADDR_GIFT4 = 0x7E03F8;
-        private const uint ADDR_YEAR = 0x7E0B53; 
+        private const uint ADDR_YEAR = 0x7E0B53;
         private const uint ADDR_MONTH = 0x7E0B55;
         private const uint ADDR_DEMON_SEASON = 0x7E0B56; //poking to 01 makes the pallelt all weird for the next season, setting it back to 00 fixes
         private const uint ADDR_BUILD_ITEM = 0x7E020D;
@@ -47,9 +45,9 @@ namespace CrowdControl.Games.Packs
         private const uint ADDR_GAMESPEED = 0x7E0193; //00 fastest - 03 stop
         private const uint ADDR_DISASTER = 0x7E0197;
         //TAXES
-        private const uint ADDR_TRANSIT_FUND = 0x7E0D79; 
-        private const uint ADDR_POLICE_FUND = 0x7E0D7B; 
-        private const uint ADDR_FIRE_FUND = 0x7E0D7D; 
+        private const uint ADDR_TRANSIT_FUND = 0x7E0D79;
+        private const uint ADDR_POLICE_FUND = 0x7E0D7B;
+        private const uint ADDR_FIRE_FUND = 0x7E0D7D;
         //other tax stuff is weird... found like 3 places it might be...
         private const uint ADDR_MONEY = 0x7E0B9D; //max cash is 999,999. but unable to actually take or give that much
 
@@ -79,7 +77,6 @@ namespace CrowdControl.Games.Packs
             }
         }
 
-
         private class DisasterAssociation
         {
             public string DisasterItem { get; }
@@ -87,7 +84,7 @@ namespace CrowdControl.Games.Packs
             public byte DisasterID { get; }
             public byte DisasterMessageID { get; }
             public uint DisasterAddress { get; }
-            public int DisasterCheck  { get; }
+            public int DisasterCheck { get; }
 
             public DisasterAssociation(string disasterName, byte disasterID, byte disasterMessageID, uint disasterAddress, int disasterCheck)
             {
@@ -114,7 +111,6 @@ namespace CrowdControl.Games.Packs
             }
         }
 
-
         private class MessageAssociation
         {
             public string MessageName { get; }
@@ -127,10 +123,8 @@ namespace CrowdControl.Games.Packs
             }
         }
 
-
         private Dictionary<string, GiftAssociation> _game_gifts = new Dictionary<string, GiftAssociation>(StringComparer.InvariantCultureIgnoreCase)
         {
-
             //SafeName, MessageName, giftID, messageID
             {"mayorhouse", new GiftAssociation("Mayor House", 0x01, 0x2C) },
             {"bank", new GiftAssociation("Bank", 0x02, 0x0B) },
@@ -147,13 +141,10 @@ namespace CrowdControl.Games.Packs
             {"library", new GiftAssociation("Library", 0x0D, 0x18) },
             {"largepark", new GiftAssociation("Large Park", 0x0E, 0x19) },
             {"station", new GiftAssociation("Train Station", 0x0F, 0x1A) }
-
         };
 
         private Dictionary<string, DisasterAssociation> _game_disasters = new Dictionary<string, DisasterAssociation>(StringComparer.InvariantCultureIgnoreCase)
         {
-
-
             //SafeName, MessageName, disasterID, disasterMessageID, disasterAddress, disasterCheck
             //disasterAddress tells us if that disaster is active or possible
             //bowser, and torando need their disasterCheck value to be 0
@@ -163,22 +154,19 @@ namespace CrowdControl.Games.Packs
             {"earthquake", new DisasterAssociation("Earthquake", 0x10, 0x0A, 0x7E0A80, 0) },
             {"fire", new DisasterAssociation("Fire", 0x01, 0x20, 0x7E0A80, 0) },
             {"flood", new DisasterAssociation("Flood", 0x02, 0x21, 0x7E0A80, 0) },
-            {"planecrash", new DisasterAssociation("Plane Crash", 0x04, 0x22, 0x7E0A8D, 1) }, 
+            {"planecrash", new DisasterAssociation("Plane Crash", 0x04, 0x22, 0x7E0A8D, 1) },
             {"tornado", new DisasterAssociation("Tornado", 0x08, 0x23, 0x7E0A8B, 0) }, 
             //Only the above I know how to trigger correctly, sadly setting the other unused flags do nothing
             //the below can be trigger sometimes by poking some additional bits but seem in-consistent 
-            {"nuclear", new DisasterAssociation("Nuclear Explosion", 0x00, 0x24, 0x7E0A80, 0) }, 
+            {"nuclear", new DisasterAssociation("Nuclear Explosion", 0x00, 0x24, 0x7E0A80, 0) },
             {"shipwreck", new DisasterAssociation("Shipwreck", 0x00, 0x2B, 0x7E0A96, 0) }, //this one spawns a ship in the bottom right and causes it to wreck if the map has no water
-            {"ufo", new DisasterAssociation("UFO Attack", 0x00, 0x30, 0x7E0A80, 0) }, 
+            {"ufo", new DisasterAssociation("UFO Attack", 0x00, 0x30, 0x7E0A80, 0) },
             {"disaster", new DisasterAssociation("Unknown Disaster", 0x00, 0x3D, 0x7E0A80, 0) } //This one just gives the warning. 
             //, 0x7E0A80 is a place holder to just let it trigger
-
-            
         };
 
         private Dictionary<string, BuildingAssociation> _game_building = new Dictionary<string, BuildingAssociation>(StringComparer.InvariantCultureIgnoreCase)
         {
-
             //SafeName, BuildingName, BuildingID, BuildingUI
             {"bulldoze", new BuildingAssociation("Bulldoze", 0x00, 0x7E029B) },
             {"roads", new BuildingAssociation("Roads", 0x01, 0x7E029C) },
@@ -195,14 +183,11 @@ namespace CrowdControl.Games.Packs
             {"coal", new BuildingAssociation("Coal Power", 0x0C, 0x7E02A7) },
             {"nuclear", new BuildingAssociation("Nuclear Power", 0x0D, 0x7E02A8) },
             {"airport", new BuildingAssociation("Airport", 0x0E, 0x7E02A9) }
-
-            
         };
 
 
         private Dictionary<string, MessageAssociation> _game_messages = new Dictionary<string, MessageAssociation>(StringComparer.InvariantCultureIgnoreCase)
         {
-
             //SafeName, MessageName, MessageID
             {"msgresidental", new MessageAssociation("More Residental Zones Needed.", 0x01) },
             {"msgcommercial", new MessageAssociation("More Commerical Zones Needed.", 0x02) },
@@ -237,9 +222,6 @@ namespace CrowdControl.Games.Packs
             {"msgsaved", new MessageAssociation("Save completed.", 0x1F) },
             {"msgonemoment", new MessageAssociation("One moment please...", 0x20) },
             {"msggoodbye", new MessageAssociation("See you soon. Good bye!", 0x21) }
-
-
-            
         };
 
 
@@ -257,15 +239,15 @@ namespace CrowdControl.Games.Packs
                     new Effect("Give gift of ", "present", ItemKind.Folder),
                     new Effect("Switch building item to ", "building", ItemKind.Folder),
                     new Effect("Send a helpful message ", "helpfulmessage", ItemKind.Folder),
-                    new Effect("Increase Transport Funds", "increasetransport", new[] {"quantity100"}),
-                    new Effect("Decrease Transport Funds", "decreasetransport", new[] {"quantity100"}),
-                    new Effect("Increase Police Funds", "increasepolice", new[] {"quantity100"}),
-                    new Effect("Decrease Police Funds", "decreasepolice", new[] {"quantity100"}),
-                    new Effect("Increase Fire Funds", "increasefire", new[] {"quantity100"}),
-                    new Effect("Decrease Fire Funds", "decreasefire", new[] {"quantity100"}),
+                    new Effect("Increase Transport Funds", "increasetransport", new[] {"quantity99"}),
+                    new Effect("Decrease Transport Funds", "decreasetransport", new[] {"quantity99"}),
+                    new Effect("Increase Police Funds", "increasepolice", new[] {"quantity99"}),
+                    new Effect("Decrease Police Funds", "decreasepolice", new[] {"quantity99"}),
+                    new Effect("Increase Fire Funds", "increasefire", new[] {"quantity99"}),
+                    new Effect("Decrease Fire Funds", "decreasefire", new[] {"quantity99"}),
                     new Effect("Enable Demon Season", "demonseason"),
-                    new Effect("Change Month", "changemonth", new[] {"quantity11"}), //would be nice if this looped back? so if it was on 11 and i added 11, it would go to 10.
-                    new Effect("Change Year", "changeyear", new[] {"quantity100"}),
+                    new Effect("Change Month", "changemonth", new[] {"quantity99"}), //would be nice if this looped back? so if it was on 11 and i added 11, it would go to 10.
+                    new Effect("Change Year", "changeyear", new[] {"quantity99"}),
                     new Effect("Game Over", "gameover"),
                     new Effect("Force Bulldoze (15 seconds)", "forcebulldoze"),
                     new Effect("Max Speed", "maxspeed"),
@@ -277,7 +259,7 @@ namespace CrowdControl.Games.Packs
                     new Effect("Enable Auto-Tax", "enableautotax"),
                     new Effect("Disable Auto-Tax", "disableautotax"),
                     new Effect("Enable Auto-Goto", "enableautogoto"),
-                    new Effect("Shake the screen!", "shakescreen", new[] {"quantity11"}),
+                    new Effect("Shake the screen!", "shakescreen", new[] {"quantity9"}),
 
                 };
 
@@ -292,17 +274,15 @@ namespace CrowdControl.Games.Packs
 
         public override List<ItemType> ItemTypes => new List<ItemType>(new[]
         {
-            new ItemType("Quantity", "quantity100", ItemType.Subtype.Slider, "{\"min\":1,\"max\":100}"),
+            new ItemType("Quantity", "quantity99", ItemType.Subtype.Slider, "{\"min\":1,\"max\":99}"),
             new ItemType("Money x10", "simCitySNESMoney", ItemType.Subtype.Slider, "{\"min\":1,\"max\":9999}"),
-            new ItemType("Quantity", "quantity11", ItemType.Subtype.Slider, "{\"min\":1,\"max\":11}")
+            new ItemType("Quantity", "quantity9", ItemType.Subtype.Slider, "{\"min\":1,\"max\":9}")
         });
 
         public override List<ROMInfo> ROMTable => new List<ROMInfo>(new[]
         {
             new ROMInfo("SimCity (USA) (v1.0 (U)", null, Patching.Ignore, ROMStatus.ValidPatched, s => Patching.MD5(s, "02913E6BAAB8E4DBC14B8E4AD3975ED8")),
         });
-
-
 
         public override List<(string, Action)> MenuActions => new List<(string, Action)>();
 
@@ -321,69 +301,62 @@ namespace CrowdControl.Games.Packs
             }
 
             sbyte sign = 1;
-
             string[] codeParams = request.FinalCode.Split('_');
             switch (codeParams[0])
             {
-
                 case "demonseason":
                     {
-                    StartTimed(request,
-                        () => (!_demonSeason && Connector.Read8(ADDR_GAMESTATE, out byte b) && (b == 0x00) && Connector.Read8(ADDR_GAMESPEED, out byte c) && (c != 03)),
-                        () =>
-                        {
-                            bool result = Connector.Write8(ADDR_DEMON_SEASON, 0x01);
-                            if (result) { 
-                                _demonSeason = true;
-                                Connector.SendMessage($"{request.DisplayViewer} enabled the demon season."); 
-                            }
-                            return result;
-                        },
-                        TimeSpan.FromSeconds(30));
-                    return;
-
+                        StartTimed(request,
+                            () => (!_demonSeason && Connector.Read8(ADDR_GAMESTATE, out byte b) && (b == 0x00) && Connector.Read8(ADDR_GAMESPEED, out byte c) && (c != 03)),
+                            () =>
+                            {
+                                bool result = Connector.Write8(ADDR_DEMON_SEASON, 0x01);
+                                if (result)
+                                {
+                                    _demonSeason = true;
+                                    Connector.SendMessage($"{request.DisplayViewer} enabled the demon season.");
+                                }
+                                return result;
+                            },
+                            TimeSpan.FromSeconds(30));
+                        return;
                     }
-
                 case "forcebulldoze":
                     {
-                    StartTimed(request,
-                        () => (!_forcebulldoze && Connector.Read8(ADDR_GAMESTATE, out byte b) && (b == 0x00)),
-                        () =>
-                        {
-                            bool result = Connector.Freeze8(ADDR_BUILD_ITEM, 0x00) && Connector.Freeze8(ADDR_BUILD_FORCE, 0x01);
-                            if (result) { 
-                                LockUI();
-                                _forcebulldoze = true;
-                                Connector.SendMessage($"{request.DisplayViewer} has enabled the forced bulldoze."); 
-                            }
-                            return result;
-                        },
-                        TimeSpan.FromSeconds(20));
-                    return;
-
+                        StartTimed(request,
+                            () => (!_forcebulldoze && Connector.Read8(ADDR_GAMESTATE, out byte b) && (b == 0x00)),
+                            () =>
+                            {
+                                bool result = Connector.Freeze8(ADDR_BUILD_ITEM, 0x00) && Connector.Freeze8(ADDR_BUILD_FORCE, 0x01);
+                                if (result)
+                                {
+                                    LockUI();
+                                    _forcebulldoze = true;
+                                    Connector.SendMessage($"{request.DisplayViewer} has enabled the forced bulldoze.");
+                                }
+                                return result;
+                            },
+                            TimeSpan.FromSeconds(20));
+                        return;
                     }
-
                 case "shakescreen":
                     {
-                    byte seconds = (byte)request.AllItems[1].Reduce(_player);
-                    StartTimed(request,
-                        () => (!_shakescreen && Connector.Read8(ADDR_GAMESTATE, out byte b) && (b == 0x00) && Connector.Read8(ADDR_SCREENSHAKE, out byte c) && (c == 0x00)),
-                        () =>
-                        {
-                            bool result = Connector.Freeze8(ADDR_SCREENSHAKE, 0x01);
-                            if (result) { 
-                                _shakescreen = true;
-                                Connector.SendMessage($"{request.DisplayViewer} shook your screen for {seconds} seconds!."); 
-                            }
-                            return result;
-                        },
-                        TimeSpan.FromSeconds(seconds));
-                    return;
-
+                        byte seconds = (byte)request.AllItems[1].Reduce(_player);
+                        StartTimed(request,
+                            () => (!_shakescreen && Connector.Read8(ADDR_GAMESTATE, out byte b) && (b == 0x00) && Connector.Read8(ADDR_SCREENSHAKE, out byte c) && (c == 0x00)),
+                            () =>
+                            {
+                                bool result = Connector.Freeze8(ADDR_SCREENSHAKE, 0x01);
+                                if (result)
+                                {
+                                    _shakescreen = true;
+                                    Connector.SendMessage($"{request.DisplayViewer} shook your screen for {seconds} seconds!.");
+                                }
+                                return result;
+                            },
+                            TimeSpan.FromSeconds(seconds));
+                        return;
                     }
-
-
-
                 case "gameover":
                     {
                         TryEffect(request,
@@ -395,13 +368,11 @@ namespace CrowdControl.Games.Packs
                             });
                         return;
                     }
-
-
-               case "enableautobulldoze":
+                case "enableautobulldoze":
                     {
                         byte previous;
                         TryEffect(request,
-                            () => Connector.Read8(ADDR_OPTIONS, out byte b) && ((b&0x01)==0),
+                            () => Connector.Read8(ADDR_OPTIONS, out byte b) && ((b & 0x01) == 0),
                             () => Connector.SetBits(ADDR_OPTIONS, 0x01, out previous),
                             () =>
                             {
@@ -409,12 +380,11 @@ namespace CrowdControl.Games.Packs
                             });
                         return;
                     }
-
-               case "disableautobulldoze":
+                case "disableautobulldoze":
                     {
                         byte previous;
                         TryEffect(request,
-                            () => Connector.Read8(ADDR_OPTIONS, out byte b) && ((b&0x01)==1),
+                            () => Connector.Read8(ADDR_OPTIONS, out byte b) && ((b & 0x01) == 1),
                             () => Connector.UnsetBits(ADDR_OPTIONS, 0x01, out previous),
                             () =>
                             {
@@ -422,12 +392,11 @@ namespace CrowdControl.Games.Packs
                             });
                         return;
                     }
-
-               case "enableautotax":
+                case "enableautotax":
                     {
                         byte previous;
                         TryEffect(request,
-                            () => Connector.Read8(ADDR_OPTIONS, out byte b) && ((b&0x02)==1),
+                            () => Connector.Read8(ADDR_OPTIONS, out byte b) && ((b & 0x02) == 1),
                             () => Connector.SetBits(ADDR_OPTIONS, 0x02, out previous),
                             () =>
                             {
@@ -435,12 +404,11 @@ namespace CrowdControl.Games.Packs
                             });
                         return;
                     }
-
-               case "disableautotax":
+                case "disableautotax":
                     {
                         byte previous;
                         TryEffect(request,
-                            () => Connector.Read8(ADDR_OPTIONS, out byte b) && ((b&0x02)==0),
+                            () => Connector.Read8(ADDR_OPTIONS, out byte b) && ((b & 0x02) == 0),
                             () => Connector.UnsetBits(ADDR_OPTIONS, 0x02, out previous),
                             () =>
                             {
@@ -448,12 +416,11 @@ namespace CrowdControl.Games.Packs
                             });
                         return;
                     }
-
-               case "enableautogoto":
+                case "enableautogoto":
                     {
                         byte previous;
                         TryEffect(request,
-                            () => Connector.Read8(ADDR_OPTIONS, out byte b) && ((b&0x04)==0),
+                            () => Connector.Read8(ADDR_OPTIONS, out byte b) && ((b & 0x04) == 0),
                             () => Connector.SetBits(ADDR_OPTIONS, 0x04, out previous),
                             () =>
                             {
@@ -461,12 +428,11 @@ namespace CrowdControl.Games.Packs
                             });
                         return;
                     }
-
-               case "disableautogoto":
+                case "disableautogoto":
                     {
                         byte previous;
                         TryEffect(request,
-                            () => Connector.Read8(ADDR_OPTIONS, out byte b) && ((b&0x04)==1),
+                            () => Connector.Read8(ADDR_OPTIONS, out byte b) && ((b & 0x04) == 1),
                             () => Connector.UnsetBits(ADDR_OPTIONS, 0x04, out previous),
                             () =>
                             {
@@ -474,8 +440,6 @@ namespace CrowdControl.Games.Packs
                             });
                         return;
                     }
-
-
                 case "maxspeed":
                     {
                         TryEffect(request,
@@ -487,7 +451,6 @@ namespace CrowdControl.Games.Packs
                             });
                         return;
                     }
-
                 case "mediumspeed":
                     {
                         TryEffect(request,
@@ -523,27 +486,24 @@ namespace CrowdControl.Games.Packs
                             });
                         return;
                     }
-
-
-
                 case "takemoney":
                     sign = -1;
                     goto case "givemoney";
                 case "givemoney":
-                {
-                    long money = request.AllItems[1].Reduce(_player) * 10;
-                    long newTotal = 0;
-                    TryEffect(request,
-                        () =>
-                        {
-                            if (!Connector.Read24LE(ADDR_MONEY, out uint value)) { return false; }
-                            newTotal = value + (money * sign);
-                            return CheckRange(newTotal, out _, 0, 999999, false);
-                        },
-                        () => Connector.Write24LE(ADDR_MONEY, (uint) newTotal),
-                        () => { Connector.SendMessage($"{request.DisplayViewer} sent you {money} money."); });
-                    return;
-                }
+                    {
+                        long money = request.AllItems[1].Reduce(_player) * 10;
+                        long newTotal = 0;
+                        TryEffect(request,
+                            () =>
+                            {
+                                if (!Connector.Read24LE(ADDR_MONEY, out uint value)) { return false; }
+                                newTotal = value + (money * sign);
+                                return CheckRange(newTotal, out _, 0, 999999, false);
+                            },
+                            () => Connector.Write24LE(ADDR_MONEY, (uint)newTotal),
+                            () => { Connector.SendMessage($"{request.DisplayViewer} sent you {money} money."); });
+                        return;
+                    }
                 case "increasetransport":
                     {
                         byte tax = (byte)request.AllItems[1].Reduce(_player);
@@ -568,8 +528,6 @@ namespace CrowdControl.Games.Packs
                             });
                         return;
                     }
-
-
                 case "increasepolice":
                     {
                         byte tax = (byte)request.AllItems[1].Reduce(_player);
@@ -594,7 +552,6 @@ namespace CrowdControl.Games.Packs
                             });
                         return;
                     }
-
                 case "increasefire":
                     {
                         byte tax = (byte)request.AllItems[1].Reduce(_player);
@@ -619,7 +576,6 @@ namespace CrowdControl.Games.Packs
                             });
                         return;
                     }
-
                 case "changemonth":
                     {
                         byte toAdd = (byte)request.AllItems[1].Reduce(_player);
@@ -652,84 +608,75 @@ namespace CrowdControl.Games.Packs
                             });
                         return;
                     }
-
                 case "present":
-                        var pType = _game_gifts[codeParams[1]];
-                        GivePresent(request, pType.MessageID, pType.GiftName);
-                        return;
-
+                    var pType = _game_gifts[codeParams[1]];
+                    GivePresent(request, pType.MessageID, pType.GiftName);
+                    return;
                 case "disaster":
-                        var dType = _game_disasters[codeParams[1]];
-                        SendDisaster(request, dType.DisasterID, dType.DisasterAddress, dType.DisasterCheck, dType.DisasterName);
-                        return;
-
+                    var dType = _game_disasters[codeParams[1]];
+                    SendDisaster(request, dType.DisasterID, dType.DisasterAddress, dType.DisasterCheck, dType.DisasterName);
+                    return;
                 case "building":
-                        var bType = _game_building[codeParams[1]];
-                        SetBuilding(request, bType.BuildingID,  bType.BuildingUIAddress, bType.BuildingName);
-                        return;
+                    var bType = _game_building[codeParams[1]];
+                    SetBuilding(request, bType.BuildingID, bType.BuildingUIAddress, bType.BuildingName);
+                    return;
                 case "helpfulmessage":
-                        var mType = _game_messages[codeParams[1]];
-                        SendHelpfulMessage(request, mType.MessageID, mType.MessageName);
-                        return;
-
+                    var mType = _game_messages[codeParams[1]];
+                    SendHelpfulMessage(request, mType.MessageID, mType.MessageName);
+                    return;
             }
         }
-
-
-
 
         private void GivePresent(EffectRequest request, byte pType, string giftName)
         {
 
-                    TryEffect(request,
-                        () => Connector.Write8(ADDR_HELPER_ID, pType),
-                        () => Connector.Write8(ADDR_HELPER_MESSAGE, 0x01),
-                        () =>
-                        {
-                            Connector.SendMessage($"{request.DisplayViewer} sent you a {giftName}.");
-                        });
+            TryEffect(request,
+                () => Connector.Write8(ADDR_HELPER_ID, pType),
+                () => Connector.Write8(ADDR_HELPER_MESSAGE, 0x01),
+                () =>
+                {
+                    Connector.SendMessage($"{request.DisplayViewer} sent you a {giftName}.");
+                });
         }
 
         private void SendDisaster(EffectRequest request, byte dType, ulong disasterAddress, int diasterCheck, string disasterName)
         {
-                    TryEffect(request,
-                        () => Connector.Read8(disasterAddress, out byte b) && (b == diasterCheck),
-                        () => Connector.Write8(ADDR_DISASTER, dType),
-                        () =>
-                        {
-                            Connector.SendMessage($"{request.DisplayViewer} sent a {disasterName} your way!");
-                        });
+            TryEffect(request,
+                () => Connector.Read8(disasterAddress, out byte b) && (b == diasterCheck),
+                () => Connector.Write8(ADDR_DISASTER, dType),
+                () =>
+                {
+                    Connector.SendMessage($"{request.DisplayViewer} sent a {disasterName} your way!");
+                });
         }
 
         private void SetBuilding(EffectRequest request, byte bType, ulong BuildingUIAddress, string buildingName)
         {
-            
-                    TryEffect(request,
-                        () => Connector.Read8(ADDR_BUILD_ITEM, out byte b) && (b != bType),
-                        () => Connector.Write8(ADDR_BUILD_ITEM, bType),
-                        () =>
-                        {
-                            ClearUI(); //I know we can do this better, we have the current active ID with the first Read above.
-                            //I just didn't know how to get that variable outside of spot to then write 00 to the ADDR_BUILD_SELECTION_BASE + bType
-                            Connector.Write8(BuildingUIAddress, 0x01);
-                            Connector.SendMessage($"{request.DisplayViewer} forced you to build only {buildingName}!");
-                        });
-        }
 
+            TryEffect(request,
+                () => Connector.Read8(ADDR_BUILD_ITEM, out byte b) && (b != bType),
+                () => Connector.Write8(ADDR_BUILD_ITEM, bType),
+                () =>
+                {
+                    ClearUI(); //I know we can do this better, we have the current active ID with the first Read above.
+                               //I just didn't know how to get that variable outside of spot to then write 00 to the ADDR_BUILD_SELECTION_BASE + bType
+                            Connector.Write8(BuildingUIAddress, 0x01);
+                    Connector.SendMessage($"{request.DisplayViewer} forced you to build only {buildingName}!");
+                });
+        }
 
         private void SendHelpfulMessage(EffectRequest request, byte mType, string messageName)
         {
-                // Log.Message(mType);
-                // Log.Message(messageName);
-                    TryEffect(request,
-                        () => Connector.Read8(ADDR_OVERLAY_ACTIVE, out byte b) && (b == 0),
-                        () => Connector.Write8(ADDR_OVERLAY_MESSAGE, mType),
-                        () =>
-                        {
-                            Connector.SendMessage($"{request.DisplayViewer} sent you a helpful message!.");
-                        });
+            // Log.Message(mType);
+            // Log.Message(messageName);
+            TryEffect(request,
+                () => Connector.Read8(ADDR_OVERLAY_ACTIVE, out byte b) && (b == 0),
+                () => Connector.Write8(ADDR_OVERLAY_MESSAGE, mType),
+                () =>
+                {
+                    Connector.SendMessage($"{request.DisplayViewer} sent you a helpful message!.");
+                });
         }
-
 
         private void ClearUI() => Connector.Write(0x7E029B, new byte[0x7E02AB - 0x7E029B]);
         /*{
@@ -800,12 +747,12 @@ namespace CrowdControl.Games.Packs
                         }
                         return result;
                     }
-                
+
 
                 case "forcebulldoze":
                     {
 
-                            bool result = Connector.Unfreeze(ADDR_BUILD_ITEM) && Connector.Unfreeze(ADDR_BUILD_FORCE);
+                        bool result = Connector.Unfreeze(ADDR_BUILD_ITEM) && Connector.Unfreeze(ADDR_BUILD_FORCE);
 
                         if (result)
                         {
