@@ -531,7 +531,7 @@ namespace CrowdControl.Games.Packs
                     goto case "givemoney";
                 case "givemoney":
                 {
-                    byte money = (byte) request.AllItems[1].Reduce(_player);
+                    long money = request.AllItems[1].Reduce(_player);
                     long newTotal = 0;
                     TryEffect(request,
                         () =>
