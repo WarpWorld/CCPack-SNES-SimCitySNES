@@ -251,8 +251,8 @@ namespace CrowdControl.Games.Packs
                 {
                     //give and take sorta work. would like to give the player * 100 what the input is
                     //sometimes it doesnt take, not sure if its tripping up somewhere
-                    new Effect("Give Money", "givemoney", new[] {"quantity999999"}),
-                    new Effect("Take Money", "takemoney", new[] {"quantity999999"}),
+                    new Effect("Give Money", "givemoney", new[] {"simCitySNESMoney"}),
+                    new Effect("Take Money", "takemoney", new[] {"simCitySNESMoney"}),
                     new Effect("Choose a Disaster ", "disaster", ItemKind.Folder),
                     new Effect("Give gift of ", "present", ItemKind.Folder),
                     new Effect("Switch building item to ", "building", ItemKind.Folder),
@@ -293,7 +293,7 @@ namespace CrowdControl.Games.Packs
         public override List<ItemType> ItemTypes => new List<ItemType>(new[]
         {
             new ItemType("Quantity", "quantity100", ItemType.Subtype.Slider, "{\"min\":1,\"max\":100}"),
-            new ItemType("Quantity", "quantity999999", ItemType.Subtype.Slider, "{\"min\":1,\"max\":999999}"),
+            new ItemType("Money x10", "simCitySNESMoney", ItemType.Subtype.Slider, "{\"min\":1,\"max\":9999}"),
             new ItemType("Quantity", "quantity11", ItemType.Subtype.Slider, "{\"min\":1,\"max\":11}")
         });
 
@@ -531,7 +531,7 @@ namespace CrowdControl.Games.Packs
                     goto case "givemoney";
                 case "givemoney":
                 {
-                    long money = request.AllItems[1].Reduce(_player);
+                    long money = request.AllItems[1].Reduce(_player) * 10;
                     long newTotal = 0;
                     TryEffect(request,
                         () =>
@@ -622,10 +622,17 @@ namespace CrowdControl.Games.Packs
 
                 case "changemonth":
                     {
-                        byte month = (byte)request.AllItems[1].Reduce(_player);
+                        byte toAdd = (byte)request.AllItems[1].Reduce(_player);
+                        byte cMonth = 0;
                         TryEffect(request,
-                            () => Connector.RangeAdd8(ADDR_MONTH, month, 0, 11, false),
-                            () => true,
+                            () => Connector.Read8(ADDR_MONTH, out cMonth),
+                            () =>
+                            {
+                                cMonth += toAdd;
+                                uint years = cMonth / 12u;
+                                return Connector.Write8(ADDR_MONTH, (byte) (cMonth % 12u)) &&
+                                       ((years == 0) || Connector.RangeAdd16(ADDR_YEAR, years, 1, 9999, false));
+                            },
                             () =>
                             {
                                 Connector.SendMessage($"{request.DisplayViewer} sent the city though time and space!");
