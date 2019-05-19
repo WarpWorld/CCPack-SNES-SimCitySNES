@@ -4,22 +4,7 @@ using System.Linq;
 using CrowdControl.Common;
 using JetBrains.Annotations;
 
-/*
-TODO: 
 
--The give and take money only works if the RangeAdd16 is 9999. The value can go much higher.
-
--I'd like to allow the viewer to input up to 99,999 for cash and then X it by 10. So that they are always taking away 10 dollars or more.
-
-Take a look at  ClearUI() and LockUI(). Specifcally check it out in SetBuilding. I know I could do that better with an array and cycle but not sure if we had something else?
-
--Look at the way we add months. Right now RangeAdd is capped at 11 since 12 would be a year and be dumb. But also if they say move 5 months up, and its november. It should put them 
-in month 4 of the next year. 
-
-Would also be nice to set forcebulldoze to pause when they are in menus and outside of the normal menu. ADDR_GAMESTATE should be 0, otherwise if its anything else it should be paused.
-
-
-*/
 namespace CrowdControl.Games.Packs
 {
     [UsedImplicitly]
