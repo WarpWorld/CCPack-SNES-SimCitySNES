@@ -185,7 +185,6 @@ namespace CrowdControl.Games.Packs
             {"airport", new BuildingAssociation("Airport", 0x0E, 0x7E02A9) }
         };
 
-
         private Dictionary<string, MessageAssociation> _game_messages = new Dictionary<string, MessageAssociation>(StringComparer.InvariantCultureIgnoreCase)
         {
             //SafeName, MessageName, MessageID
@@ -281,7 +280,8 @@ namespace CrowdControl.Games.Packs
 
         public override List<ROMInfo> ROMTable => new List<ROMInfo>(new[]
         {
-            new ROMInfo("SimCity (USA) (v1.0 (U)", null, Patching.Ignore, ROMStatus.ValidPatched, s => Patching.MD5(s, "02913E6BAAB8E4DBC14B8E4AD3975ED8")),
+            new ROMInfo("SimCity (v1.0) (U) (Headered)", null, Patching.Ignore, ROMStatus.ValidPatched, s => Patching.MD5(s, "ee177068d94ede4c95ec540b0db255db")),
+            new ROMInfo("SimCity (v1.0) (U) (Unheadered)", null, Patching.Ignore, ROMStatus.ValidPatched, s => Patching.MD5(s, "23715fc7ef700b3999384d5be20f4db5"))
         });
 
         public override List<(string, Action)> MenuActions => new List<(string, Action)>();
