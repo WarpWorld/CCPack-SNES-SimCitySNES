@@ -244,8 +244,7 @@ namespace CrowdControl.Games.Packs
                     new Effect("Disable Auto-Tax", "disableautotax"),
                     new Effect("Enable Auto-Goto", "enableautogoto"),
                     new Effect("Disable Auto-Goto", "disableautogoto"),
-                    new Effect("Shake the screen!", "shakescreen", new[] {"quantity9"}),
-                    new Effect("Disable Auto-Goto", "disableautogoto")
+                    new Effect("Shake the screen!", "shakescreen", new[] {"quantity9"})
                 };
 
                 effects.AddRange(_game_gifts.Take(15).Select(t => new Effect($"{t.Value.GiftName}", $"present_{t.Key}", "present")));
