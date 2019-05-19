@@ -258,6 +258,7 @@ namespace CrowdControl.Games.Packs
                     new Effect("Enable Auto-Tax", "enableautotax"),
                     new Effect("Disable Auto-Tax", "disableautotax"),
                     new Effect("Enable Auto-Goto", "enableautogoto"),
+                    new Effect("Disable Auto-Goto", "disableautogoto"),
                     new Effect("Shake the screen!", "shakescreen", new[] {"quantity9"}),
                     new Effect("Disable Auto-Goto", "disableautogoto")
                 };
