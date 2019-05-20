@@ -165,9 +165,9 @@ namespace CrowdControl.Games.Packs
             {"firedept", new BuildingAssociation("Fire Station", 0x09, 0x7E02A4) },
             {"stadium", new BuildingAssociation("Stadium", 0x0A, 0x7E02A5) },
             {"seaport", new BuildingAssociation("Sea Port", 0x0B, 0x7E02A6) },
-            {"coal", new BuildingAssociation("Coal Power", 0x0C, 0x7E02A7) },
+            {"coal", new BuildingAssociation("Coal Power", 0x0E, 0x7E02A7) },
             {"nuclear", new BuildingAssociation("Nuclear Power", 0x0D, 0x7E02A8) },
-            {"airport", new BuildingAssociation("Airport", 0x0E, 0x7E02A9) }
+            {"airport", new BuildingAssociation("Airport", 0x0C, 0x7E02A9) }
         };
 
         private Dictionary<string, MessageAssociation> _game_messages = new Dictionary<string, MessageAssociation>(StringComparer.InvariantCultureIgnoreCase)
