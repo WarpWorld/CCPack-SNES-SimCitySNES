@@ -222,7 +222,7 @@ namespace CrowdControl.Games.Packs
                     new Effect("Choose a Disaster ", "disaster", ItemKind.Folder),
                     new Effect("Give gift of ", "present", ItemKind.Folder),
                     new Effect("Switch building item to ", "building", ItemKind.Folder),
-                    new Effect("Send a helpful message ", "helpfulmessage", new[] {"simCitySNESHelpMessage"}),
+                    new Effect("Send a helpful message ", "helpfulmessage", new[] {"simCitySNESHelpfulMessage"}),
                     new Effect("Increase Transport Funds", "increasetransport", new[] {"quantity99"}),
                     new Effect("Decrease Transport Funds", "decreasetransport", new[] {"quantity99"}),
                     new Effect("Increase Police Funds", "increasepolice", new[] {"quantity99"}),
@@ -250,7 +250,7 @@ namespace CrowdControl.Games.Packs
                 effects.AddRange(_game_gifts.Take(15).Select(t => new Effect($"{t.Value.GiftName}", $"present_{t.Key}", "present")));
                 effects.AddRange(_game_disasters.Take(6).Select(t => new Effect($"{t.Value.DisasterName}", $"disaster_{t.Key}", "disaster")));
                 effects.AddRange(_game_building.Take(15).Select(t => new Effect($"{t.Value.BuildingName}", $"building_{t.Key}", "building")));
-                effects.AddRange(_game_messages.Take(33).Select(t => new Effect($"{t.Value.MessageName}", t.Key, ItemKind.Usable, "simCitySNESHelpMessage")));
+                effects.AddRange(_game_messages.Take(33).Select(t => new Effect($"{t.Value.MessageName}", t.Key, ItemKind.Usable, "simCitySNESHelpfulMessage")));
 
                 return effects;
             }
