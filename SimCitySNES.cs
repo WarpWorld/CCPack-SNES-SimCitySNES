@@ -29,6 +29,13 @@ namespace CrowdControl.Games.Packs
         private const uint ADDR_GAMESTATE = 0x7E1FF6; //poke FF to gameover
         private const uint ADDR_GAMESPEED = 0x7E0193; //00 fastest - 03 stop
         private const uint ADDR_DISASTER = 0x7E0197;
+
+        private const uint ADDR_CURSOR_X = 0x7E01EB;
+        private const uint ADDR_CURSOR_Y = 0x7E01ED;
+
+        private static readonly (ushort min, ushort max) CURSOR_RANGE_X = (0x38, 0xE8);
+        private static readonly (ushort min, ushort max) CURSOR_RANGE_Y = (0x30, 0xC0);
+
         //TAXES
         private const uint ADDR_TRANSIT_FUND = 0x7E0D79;
         private const uint ADDR_POLICE_FUND = 0x7E0D7B;
@@ -331,7 +338,14 @@ namespace CrowdControl.Games.Packs
                                 return Connector.SendMessage($"{request.DisplayViewer} has enabled the forced bulldoze.");
                             }, TimeSpan.FromSeconds(2.5),
                             () => Connector.IsZero8(ADDR_GAMESTATE), TimeSpan.FromSeconds(1),
-                            () => Connector.Write8(ADDR_BUILD_ITEM, 0x00) && Connector.Write8(ADDR_BUILD_FORCE, 0x01),
+                            () =>
+                            {
+                                var (x, y) = GetRandomLocation();
+                                return Connector.Write8(ADDR_CURSOR_X, x) &&
+                                       Connector.Write8(ADDR_CURSOR_Y, y) &&
+                                       Connector.Write8(ADDR_BUILD_ITEM, 0x00) &&
+                                       Connector.Write8(ADDR_BUILD_FORCE, 0x01);
+                            },
                             TimeSpan.FromSeconds(0.2), true).WhenCompleted.Then(t =>
                             {
                                 Connector.SendMessage($"{request.DisplayViewer}'s forced bulldoze is over!");
@@ -608,7 +622,6 @@ namespace CrowdControl.Games.Packs
                             });
                         return;
                     }
-
                 case "changeyear":
                     {
                         byte year = (byte)request.AllItems[1].Reduce(_player);
@@ -639,6 +652,10 @@ namespace CrowdControl.Games.Packs
                     return;
             }
         }
+
+        private (byte x, byte y) GetRandomLocation()
+            => ((byte) RNG.Next(CURSOR_RANGE_X.min, CURSOR_RANGE_X.max),
+                (byte) RNG.Next(CURSOR_RANGE_Y.min, CURSOR_RANGE_Y.max));
 
         private void GivePresent(EffectRequest request, byte pType, string giftName)
         {
@@ -731,7 +748,6 @@ namespace CrowdControl.Games.Packs
             Connector.Write8(0x7E02AA, 0x01);
         }*/
 
-
         private bool StopAll()
         {
             ClearUI();
@@ -743,8 +759,6 @@ namespace CrowdControl.Games.Packs
             _shakescreen = false;
             return true;
         }
-
-
 
         protected override bool StopEffect(EffectRequest request)
         {
