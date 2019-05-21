@@ -332,7 +332,7 @@ namespace CrowdControl.Games.Packs
                             }, TimeSpan.FromSeconds(2.5),
                             () => Connector.IsZero8(ADDR_GAMESTATE), TimeSpan.FromSeconds(1),
                             () => Connector.Write8(ADDR_BUILD_ITEM, 0x00) && Connector.Write8(ADDR_BUILD_FORCE, 0x01),
-                            TimeSpan.FromSeconds(0.25), true).WhenCompleted.Then(t =>
+                            TimeSpan.FromSeconds(0.2), true).WhenCompleted.Then(t =>
                             {
                                 Connector.SendMessage($"{request.DisplayViewer}'s forced bulldoze is over!");
                                 ClearUI();
@@ -362,7 +362,7 @@ namespace CrowdControl.Games.Packs
                                 _shakescreen = true;
                                 return Connector.SendMessage($"{request.DisplayViewer} shook your screen for {seconds} seconds!.");
                             }, TimeSpan.FromSeconds(2.5),
-                            () => Connector.IsZero8(ADDR_GAMESTATE) && Connector.IsZero8(ADDR_SCREENSHAKE), TimeSpan.FromSeconds(1),
+                            () => Connector.IsZero8(ADDR_GAMESTATE), TimeSpan.FromSeconds(1),
                             () => Connector.Write8(ADDR_SCREENSHAKE, 0x7F),
                             TimeSpan.FromSeconds(0.5), true).WhenCompleted.Then(t => {
                                 Connector.SendMessage($"{request.DisplayViewer}'s screenshake is over!");
