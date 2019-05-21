@@ -348,7 +348,7 @@ namespace CrowdControl.Games.Packs
                                 return Connector.SendMessage($"{request.DisplayViewer} shook your screen for {seconds} seconds!.");
                             }, TimeSpan.FromSeconds(2.5),
                             () => Connector.IsZero8(ADDR_GAMESTATE) && Connector.IsZero8(ADDR_SCREENSHAKE), TimeSpan.FromSeconds(1),
-                            () => Connector.Freeze8(ADDR_SCREENSHAKE, 0x7F),
+                            () => Connector.Write8(ADDR_SCREENSHAKE, 0x7F),
                             TimeSpan.FromSeconds(1), true);
                         return;
                     }
