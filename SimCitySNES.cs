@@ -311,7 +311,7 @@ namespace CrowdControl.Games.Packs
                                 }
                                 return result;
                             },
-                            TimeSpan.FromSeconds(30));
+                            TimeSpan.FromSeconds(60));
                         return;
                     }
                 case "forcebulldoze":
