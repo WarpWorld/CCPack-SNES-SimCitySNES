@@ -327,8 +327,8 @@ namespace CrowdControl.Games.Packs
                     }
                 case "shakescreen":
                     {
-                        byte seconds = (byte)request.AllItems[1].Reduce(_player);
-                        StartTimed(request,
+                        long seconds = request.AllItems[1].Reduce(_player);
+                        /*StartTimed(request,
                             () => (!_shakescreen && Connector.Read8(ADDR_GAMESTATE, out byte b) && (b == 0x00) && Connector.Read8(ADDR_SCREENSHAKE, out byte c) && (c == 0x00)),
                             () =>
                             {
@@ -340,7 +340,16 @@ namespace CrowdControl.Games.Packs
                                 }
                                 return result;
                             },
-                            TimeSpan.FromSeconds(seconds));
+                            TimeSpan.FromSeconds(seconds));*/
+                        RepeatAction(request, TimeSpan.FromSeconds(seconds),
+                            () => (!_shakescreen) && Connector.IsZero8(ADDR_GAMESTATE) && Connector.IsZero8(ADDR_SCREENSHAKE),
+                            () => {
+                                _shakescreen = true;
+                                return Connector.SendMessage($"{request.DisplayViewer} shook your screen for {seconds} seconds!.");
+                            }, TimeSpan.FromSeconds(2.5),
+                            () => Connector.IsZero8(ADDR_GAMESTATE) && Connector.IsZero8(ADDR_SCREENSHAKE), TimeSpan.FromSeconds(1),
+                            () => Connector.Freeze8(ADDR_SCREENSHAKE, 0x7F),
+                            TimeSpan.FromSeconds(1), true);
                         return;
                     }
                 case "gameover":
