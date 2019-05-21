@@ -309,7 +309,7 @@ namespace CrowdControl.Games.Packs
                     }
                 case "forcebulldoze":
                     {
-                        StartTimed(request,
+                        /*StartTimed(request,
                             () => (!_forcebulldoze && Connector.Read8(ADDR_GAMESTATE, out byte b) && (b == 0x00)),
                             () =>
                             {
@@ -322,7 +322,22 @@ namespace CrowdControl.Games.Packs
                                 }
                                 return result;
                             },
-                            TimeSpan.FromSeconds(20));
+                            TimeSpan.FromSeconds(20));*/
+                        RepeatAction(request, TimeSpan.FromSeconds(20),
+                            () => (!_forcebulldoze) && Connector.IsZero8(ADDR_GAMESTATE),
+                            () => {
+                                LockUI();
+                                _forcebulldoze = true;
+                                return Connector.SendMessage($"{request.DisplayViewer} has enabled the forced bulldoze.");
+                            }, TimeSpan.FromSeconds(2.5),
+                            () => Connector.Write8(ADDR_BUILD_ITEM, 0x00) && Connector.Write8(ADDR_BUILD_FORCE, 0x01), TimeSpan.FromSeconds(1),
+                            () => Connector.Write8(ADDR_SCREENSHAKE, 0x7F),
+                            TimeSpan.FromSeconds(0.25), true).WhenCompleted.Then(t =>
+                            {
+                                Connector.SendMessage($"{request.DisplayViewer}'s forced bulldoze is over!");
+                                ClearUI();
+                                _forcebulldoze = false;
+                            });
                         return;
                     }
                 case "shakescreen":
@@ -349,7 +364,10 @@ namespace CrowdControl.Games.Packs
                             }, TimeSpan.FromSeconds(2.5),
                             () => Connector.IsZero8(ADDR_GAMESTATE) && Connector.IsZero8(ADDR_SCREENSHAKE), TimeSpan.FromSeconds(1),
                             () => Connector.Write8(ADDR_SCREENSHAKE, 0x7F),
-                            TimeSpan.FromSeconds(1), true);
+                            TimeSpan.FromSeconds(0.5), true).WhenCompleted.Then(t => {
+                                Connector.SendMessage($"{request.DisplayViewer}'s screenshake is over!");
+                                _shakescreen = false;
+                            });
                         return;
                     }
                 case "gameover":
@@ -655,7 +673,7 @@ namespace CrowdControl.Games.Packs
                 {
                     ClearUI(); //I know we can do this better, we have the current active ID with the first Read above.
                                //I just didn't know how to get that variable outside of spot to then write 00 to the ADDR_BUILD_SELECTION_BASE + bType
-                            Connector.Write8(BuildingUIAddress, 0x01);
+                    Connector.Write8(BuildingUIAddress, 0x01);
                     Connector.SendMessage($"{request.DisplayViewer} forced you to build only {buildingName}!");
                 });
         }
@@ -742,13 +760,9 @@ namespace CrowdControl.Games.Packs
                         }
                         return result;
                     }
-
-
                 case "forcebulldoze":
                     {
-
                         bool result = Connector.Unfreeze(ADDR_BUILD_ITEM) && Connector.Unfreeze(ADDR_BUILD_FORCE);
-
                         if (result)
                         {
                             Connector.SendMessage($"{request.DisplayViewer}'s forced bulldoze is over!");
@@ -757,13 +771,9 @@ namespace CrowdControl.Games.Packs
                         }
                         return result;
                     }
-
-
                 case "shakescreen":
                     {
-
                         bool result = Connector.Unfreeze(ADDR_SCREENSHAKE);
-
                         if (result)
                         {
                             Connector.SendMessage($"{request.DisplayViewer}'s screenshake is over!");
@@ -771,14 +781,11 @@ namespace CrowdControl.Games.Packs
                         }
                         return result;
                     }
-
                 default:
                     return false;
             }
         }
 
         public override bool StopAllEffects() => StopAll();
-
-
     }
 }
