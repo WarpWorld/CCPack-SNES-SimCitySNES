@@ -330,8 +330,8 @@ namespace CrowdControl.Games.Packs
                                 _forcebulldoze = true;
                                 return Connector.SendMessage($"{request.DisplayViewer} has enabled the forced bulldoze.");
                             }, TimeSpan.FromSeconds(2.5),
-                            () => Connector.Write8(ADDR_BUILD_ITEM, 0x00) && Connector.Write8(ADDR_BUILD_FORCE, 0x01), TimeSpan.FromSeconds(1),
-                            () => Connector.Write8(ADDR_SCREENSHAKE, 0x7F),
+                            () => Connector.IsZero8(ADDR_GAMESTATE), TimeSpan.FromSeconds(1),
+                            () => Connector.Write8(ADDR_BUILD_ITEM, 0x00) && Connector.Write8(ADDR_BUILD_FORCE, 0x01),
                             TimeSpan.FromSeconds(0.25), true).WhenCompleted.Then(t =>
                             {
                                 Connector.SendMessage($"{request.DisplayViewer}'s forced bulldoze is over!");
