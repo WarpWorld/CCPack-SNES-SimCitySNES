@@ -796,7 +796,7 @@ namespace CrowdControl.Games.Packs
                         return result;
                     }
                 default:
-                    return false;
+                    return true;
             }
         }
 
