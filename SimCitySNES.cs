@@ -33,6 +33,13 @@ namespace CrowdControl.Games.Packs
         private const uint ADDR_CURSOR_X = 0x7E01EB;
         private const uint ADDR_CURSOR_Y = 0x7E01ED;
 
+
+        private const uint ADDR_GAME_TYPE   = 0x7E003E;
+        private const uint ADDR_SCENARIO    = 0x7E0040;
+        private const uint ADDR_POPULATION  = 0x7E0BA5;
+        private const uint ADDR_TIMER       = 0x7E0C0D;
+        private const uint ADDR_UFO_TRIGGER = 0x7FF000;
+
         private static readonly (ushort min, ushort max) CURSOR_RANGE_X = (0x38, 0xE8);
         private static readonly (ushort min, ushort max) CURSOR_RANGE_Y = (0x30, 0xC0);
 
@@ -53,6 +60,12 @@ namespace CrowdControl.Games.Packs
         private volatile bool _demonSeason = false;
         private volatile bool _forcebulldoze = false;
         private volatile bool _shakescreen = false;
+
+        private byte gametype;
+        private byte scenario;
+        private ushort timer;
+        private ushort pop;
+        private byte poph;
 
         private class GiftAssociation
         {
@@ -147,12 +160,12 @@ namespace CrowdControl.Games.Packs
             {"fire", new DisasterAssociation("Fire", 0x01, 0x20, 0x7E0A80, 0) },
             {"flood", new DisasterAssociation("Flood", 0x02, 0x21, 0x7E0A80, 0) },
             {"planecrash", new DisasterAssociation("Plane Crash", 0x04, 0x22, 0x7E0A8D, 1) },
-            {"tornado", new DisasterAssociation("Tornado", 0x08, 0x23, 0x7E0A8B, 0) }, 
+            {"tornado", new DisasterAssociation("Tornado", 0x08, 0x23, 0x7E0A8B, 0) },
+            {"ufo", new DisasterAssociation("UFO Attack", 0xFF, 0x30, 0x7E0A80, 0) },
             //Only the above I know how to trigger correctly, sadly setting the other unused flags do nothing
             //the below can be trigger sometimes by poking some additional bits but seem in-consistent 
             {"nuclear", new DisasterAssociation("Nuclear Explosion", 0x00, 0x24, 0x7E0A80, 0) },
             {"shipwreck", new DisasterAssociation("Shipwreck", 0x00, 0x2B, 0x7E0A96, 0) }, //this one spawns a ship in the bottom right and causes it to wreck if the map has no water
-            {"ufo", new DisasterAssociation("UFO Attack", 0x00, 0x30, 0x7E0A80, 0) },
             {"disaster", new DisasterAssociation("Unknown Disaster", 0x00, 0x3D, 0x7E0A80, 0) } //This one just gives the warning. 
             //, 0x7E0A80 is a place holder to just let it trigger
         };
@@ -255,7 +268,7 @@ namespace CrowdControl.Games.Packs
                 };
 
                 effects.AddRange(_game_gifts.Take(15).Select(t => new Effect($"{t.Value.GiftName}", $"present_{t.Key}", "present")));
-                effects.AddRange(_game_disasters.Take(6).Select(t => new Effect($"{t.Value.DisasterName}", $"disaster_{t.Key}", "disaster")));
+                effects.AddRange(_game_disasters.Take(7).Select(t => new Effect($"{t.Value.DisasterName}", $"disaster_{t.Key}", "disaster")));
                 effects.AddRange(_game_building.Take(15).Select(t => new Effect($"{t.Value.BuildingName}", $"building_{t.Key}", "building")));
                 effects.AddRange(_game_messages.Take(33).Select(t => new Effect($"{t.Value.MessageName}", t.Key, ItemKind.Usable, "simCitySNESHelpfulMessage")));
 
@@ -273,15 +286,25 @@ namespace CrowdControl.Games.Packs
 
         public override List<ROMInfo> ROMTable => new List<ROMInfo>(new[]
         {
-            new ROMInfo("SimCity (v1.0) (U) (Headered)", null, Patching.Ignore, ROMStatus.ValidPatched, s => Patching.MD5(s, "ee177068d94ede4c95ec540b0db255db")),
-            new ROMInfo("SimCity (v1.0) (U) (Unheadered)", null, Patching.Ignore, ROMStatus.ValidPatched, s => Patching.MD5(s, "23715fc7ef700b3999384d5be20f4db5"))
+            new ROMInfo("SimCity (v1.0) (U) (Headered)", "SimCitySNES.bps",
+                (stream, bytes) =>
+                {
+                    var deheadered = Patching.Truncate(stream, 0x200, 0x80000);
+                    return deheadered.success ? Patching.BPS(stream, bytes) : deheadered;
+                }, ROMStatus.ValidUnpatched, s => Patching.MD5(s, "ee177068d94ede4c95ec540b0db255db")),
+            new ROMInfo("SimCity (v1.0) (U) (Unheadered)", "SimCitySNES.bps", Patching.BPS, ROMStatus.ValidUnpatched, s => Patching.MD5(s, "23715fc7ef700b3999384d5be20f4db5")),
+
+            new ROMInfo("SimCity - Crowd Control", null, Patching.Ignore, ROMStatus.ValidPatched, s => Patching.MD5(s, "d1077c8e9e8926cdb540f364925aaa9f"))
+
+
+            
         });
 
         public override List<(string, Action)> MenuActions => new List<(string, Action)>();
 
         public override Game Game { get; } = new Game(29, "Sim City", "SimCity", "SNES", ConnectorType.SNESConnector);
 
-        protected override bool IsReady(EffectRequest request) => Connector.Read8(ADDR_GAMESTATE, out byte b) && (b == 0x00);
+        protected override bool IsReady(EffectRequest request) => Connector.Read8(ADDR_GAMESTATE, out byte b) && (b == 0x00) && Connector.Read8(ADDR_GAME_TYPE, out byte a) && (a != 0x00);
 
         protected override void RequestData(DataRequest request) => Respond(request, request.Key, null, false, $"Variable name \"{request.Key}\" not known");
 
@@ -640,7 +663,48 @@ namespace CrowdControl.Games.Packs
                     return;
                 case "disaster":
                     var dType = _game_disasters[codeParams[1]];
+
+                    if (dType.DisasterID == 0xFF)
+                    {
+
+
+                        StartTimed(request,
+                            () => (Connector.Read8(0x7E0AF0, out byte a) && (a == 0x00) && Connector.Read8(ADDR_GAMESTATE, out byte b) && (b == 0x00)),
+                            () =>
+                            {
+
+
+                                if (!Connector.Read8(ADDR_GAME_TYPE, out gametype)) return false;
+                                if (!Connector.Read8(ADDR_SCENARIO, out scenario)) return false;
+                                //if (!Connector.Read16(ADDR_POPULATION, out pop)) return false;
+                                //if (!Connector.Read8(ADDR_POPULATION + 2, out poph)) return false;
+                                if (!Connector.Read16(ADDR_TIMER, out timer)) return false;
+
+
+                                if (!Connector.Write8(ADDR_GAME_TYPE, 0x03)) return false;
+                                if (!Connector.Write8(ADDR_SCENARIO,  0x06)) return false;
+                                //if (!Connector.Freeze16(ADDR_POPULATION, 0x4C08)) return false;
+                                //if (!Connector.Freeze8(ADDR_POPULATION+2, 0x02)) return false;
+                                if (!Connector.Freeze16(ADDR_TIMER, 0x0130)) return false;
+                                //if (!Connector.Freeze8(ADDR_OVERLAY_ACTIVE, 0xFF)) return false;
+                                //if (!Connector.Freeze8(ADDR_OVERLAY_MESSAGE, 0)) return false;
+                                if (!Connector.Freeze8(0x7E0AB7, 0x01)) return false;
+
+                                if (!Connector.Write8(ADDR_UFO_TRIGGER, 0xAB)) return false;
+                                
+
+                                Connector.SendMessage($"{request.DisplayViewer} has sent a UFO attack!");
+
+                                return true;
+                            },
+                            TimeSpan.FromSeconds(10));
+
+                        return;
+                    }
+
                     SendDisaster(request, dType.DisasterID, dType.DisasterAddress, dType.DisasterCheck, dType.DisasterName);
+
+
                     return;
                 case "building":
                     var bType = _game_building[codeParams[1]];
@@ -754,6 +818,14 @@ namespace CrowdControl.Games.Packs
             Connector.Write8(ADDR_SCREENSHAKE, 0x00);
             Connector.Write8(ADDR_BUILD_ITEM, 0x00);
             Connector.Write8(ADDR_DEMON_SEASON, 0x00);
+
+            if (!Connector.Unfreeze(ADDR_POPULATION)) return false;
+            if (!Connector.Unfreeze(ADDR_POPULATION + 2)) return false;
+            if (!Connector.Unfreeze(ADDR_TIMER)) return false;
+            if (!Connector.Unfreeze(0x7E0AB7)) return false;
+            if (!Connector.Unfreeze(ADDR_OVERLAY_ACTIVE)) return false;
+            if (!Connector.Unfreeze(ADDR_OVERLAY_MESSAGE)) return false;
+
             _forcebulldoze = false;
             _demonSeason = false;
             _shakescreen = false;
@@ -764,6 +836,31 @@ namespace CrowdControl.Games.Packs
         {
             switch (request.InventoryItem.BaseItem.Code)
             {
+                case "disaster_ufo":
+                    {
+
+
+                        if (Connector.Read8(0x7E0AF0, out byte a) && (a != 0x00)) return false;
+
+                        if (!Connector.Unfreeze(ADDR_POPULATION)) return false;
+                        if (!Connector.Unfreeze(ADDR_POPULATION + 2)) return false;
+                        if (!Connector.Unfreeze(ADDR_TIMER)) return false;
+                        if (!Connector.Unfreeze(0x7E0AB7)) return false;
+                        if (!Connector.Unfreeze(ADDR_OVERLAY_ACTIVE)) return false;
+                        if (!Connector.Unfreeze(ADDR_OVERLAY_MESSAGE)) return false;
+
+
+                        if (!Connector.Write8(ADDR_GAME_TYPE, gametype)) return false;
+                        if (!Connector.Write8(ADDR_SCENARIO, scenario)) return false;
+                        if (!Connector.Write16(ADDR_POPULATION, pop)) return false;
+                        if (!Connector.Write8(ADDR_POPULATION + 2, poph)) return false;
+                        if (!Connector.Write16(ADDR_TIMER, timer)) return false;
+
+                        Connector.SendMessage($"UFO END");
+
+                        return true;
+
+                    }
                 case "demonseason":
                     {
                         bool result = Connector.Write8(ADDR_DEMON_SEASON, 0x00);
