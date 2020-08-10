@@ -831,7 +831,7 @@ namespace CrowdControl.Games.Packs
 
         protected override bool StopEffect(EffectRequest request)
         {
-            switch (request.InventoryItem.BaseItem.Code)
+            switch (request.BaseCode)
             {
                 case "disaster_ufo":
                     {
