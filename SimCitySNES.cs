@@ -376,7 +376,7 @@ namespace CrowdControl.Games.Packs
                     }
                 case "shakescreen":
                     {
-                        long seconds = request.AllItems[1].Reduce(Player);
+                        long seconds = request.AllItems[1].Reduce();
                         /*StartTimed(request,
                             () => (!_shakescreen && Connector.Read8(ADDR_GAMESTATE, out byte b) && (b == 0x00) && Connector.Read8(ADDR_SCREENSHAKE, out byte c) && (c == 0x00)),
                             () =>
@@ -538,7 +538,7 @@ namespace CrowdControl.Games.Packs
                     goto case "givemoney";
                 case "givemoney":
                     {
-                        long money = request.AllItems[1].Reduce(Player) * 10;
+                        long money = request.AllItems[1].Reduce() * 10;
                         long newTotal = 0;
                         TryEffect(request,
                             () =>
@@ -553,7 +553,7 @@ namespace CrowdControl.Games.Packs
                     }
                 case "increasetransport":
                     {
-                        byte tax = (byte)request.AllItems[1].Reduce(Player);
+                        byte tax = (byte)request.AllItems[1].Reduce();
                         TryEffect(request,
                             () => Connector.RangeAdd8(ADDR_TRANSIT_FUND, tax, 0, 100, false),
                             () => true,
@@ -565,7 +565,7 @@ namespace CrowdControl.Games.Packs
                     }
                 case "decreasetransport":
                     {
-                        byte tax = (byte)request.AllItems[1].Reduce(Player);
+                        byte tax = (byte)request.AllItems[1].Reduce();
                         TryEffect(request,
                             () => Connector.RangeAdd8(ADDR_TRANSIT_FUND, -tax, 0, 100, false),
                             () => true,
@@ -577,7 +577,7 @@ namespace CrowdControl.Games.Packs
                     }
                 case "increasepolice":
                     {
-                        byte tax = (byte)request.AllItems[1].Reduce(Player);
+                        byte tax = (byte)request.AllItems[1].Reduce();
                         TryEffect(request,
                             () => Connector.RangeAdd8(ADDR_POLICE_FUND, tax, 0, 100, false),
                             () => true,
@@ -589,7 +589,7 @@ namespace CrowdControl.Games.Packs
                     }
                 case "decreasepolice":
                     {
-                        byte tax = (byte)request.AllItems[1].Reduce(Player);
+                        byte tax = (byte)request.AllItems[1].Reduce();
                         TryEffect(request,
                             () => Connector.RangeAdd8(ADDR_POLICE_FUND, -tax, 0, 100, false),
                             () => true,
@@ -601,7 +601,7 @@ namespace CrowdControl.Games.Packs
                     }
                 case "increasefire":
                     {
-                        byte tax = (byte)request.AllItems[1].Reduce(Player);
+                        byte tax = (byte)request.AllItems[1].Reduce();
                         TryEffect(request,
                             () => Connector.RangeAdd8(ADDR_FIRE_FUND, tax, 0, 100, false),
                             () => true,
@@ -613,7 +613,7 @@ namespace CrowdControl.Games.Packs
                     }
                 case "decreasefire":
                     {
-                        byte tax = (byte)request.AllItems[1].Reduce(Player);
+                        byte tax = (byte)request.AllItems[1].Reduce();
                         TryEffect(request,
                             () => Connector.RangeAdd8(ADDR_FIRE_FUND, -tax, 0, 100, false),
                             () => true,
@@ -625,7 +625,7 @@ namespace CrowdControl.Games.Packs
                     }
                 case "changemonth":
                     {
-                        byte toAdd = (byte)request.AllItems[1].Reduce(Player);
+                        byte toAdd = (byte)request.AllItems[1].Reduce();
                         byte cMonth = 0;
                         TryEffect(request,
                             () => Connector.Read8(ADDR_MONTH, out cMonth),
@@ -644,7 +644,7 @@ namespace CrowdControl.Games.Packs
                     }
                 case "changeyear":
                     {
-                        byte year = (byte)request.AllItems[1].Reduce(Player);
+                        byte year = (byte)request.AllItems[1].Reduce();
                         TryEffect(request,
                             () => Connector.RangeAdd16(ADDR_YEAR, year, 1, 9999, false),
                             () => true,
