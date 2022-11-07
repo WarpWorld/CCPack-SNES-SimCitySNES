@@ -10,7 +10,7 @@ namespace CrowdControl.Games.Packs
     [UsedImplicitly]
     public class SimCitySNES : SNESEffectPack
     {
-        public SimCitySNES([NotNull] IPlayer player, [NotNull] Func<CrowdControlBlock, bool> responseHandler, [NotNull] Action<object> statusUpdateHandler) : base(player, responseHandler, statusUpdateHandler) { }
+        public SimCitySNES(IPlayer player, Func<CrowdControlBlock, bool> responseHandler, Action<object> statusUpdateHandler) : base(player, responseHandler, statusUpdateHandler) { }
 
         private const uint ADDR_GIFT1 = 0x7E03F5;
         private const uint ADDR_GIFT2 = 0x7E03F6;
@@ -23,7 +23,7 @@ namespace CrowdControl.Games.Packs
         private const uint ADDR_BUILD_SELECTION_BASE = 0x7E029B;
         private const uint ADDR_BUILD_FORCE = 0x7E023C; //only works on bulldoze, roads, rails and parks
         private const uint ADDR_OPTIONS = 0x7E0195;
-        private const uint ADDR_GAMESTATE = 0x7E1FF6; //poke FF to gameover
+        private const uint ADDR_GAMESTATE = 0x7E1FF6; //poke 50 to gameover
         private const uint ADDR_GAMESPEED = 0x7E0193; //00 fastest - 03 stop
         private const uint ADDR_DISASTER = 0x7E0197;
 
@@ -125,7 +125,7 @@ namespace CrowdControl.Games.Packs
             }
         }
 
-        private Dictionary<string, GiftAssociation> _game_gifts = new Dictionary<string, GiftAssociation>(StringComparer.InvariantCultureIgnoreCase)
+        private Dictionary<string, GiftAssociation> _game_gifts = new(StringComparer.InvariantCultureIgnoreCase)
         {
             //SafeName, MessageName, giftID, messageID
             {"mayorhouse", new GiftAssociation("Mayor House", 0x01, 0x2C) },
@@ -145,7 +145,7 @@ namespace CrowdControl.Games.Packs
             {"station", new GiftAssociation("Train Station", 0x0F, 0x1A) }
         };
 
-        private Dictionary<string, DisasterAssociation> _game_disasters = new Dictionary<string, DisasterAssociation>(StringComparer.InvariantCultureIgnoreCase)
+        private Dictionary<string, DisasterAssociation> _game_disasters = new(StringComparer.InvariantCultureIgnoreCase)
         {
             //SafeName, MessageName, disasterID, disasterMessageID, disasterAddress, disasterCheck
             //disasterAddress tells us if that disaster is active or possible
@@ -167,7 +167,7 @@ namespace CrowdControl.Games.Packs
             //, 0x7E0A80 is a place holder to just let it trigger
         };
 
-        private Dictionary<string, BuildingAssociation> _game_building = new Dictionary<string, BuildingAssociation>(StringComparer.InvariantCultureIgnoreCase)
+        private Dictionary<string, BuildingAssociation> _game_building = new(StringComparer.InvariantCultureIgnoreCase)
         {
             //SafeName, BuildingName, BuildingID, BuildingUI
             {"bulldoze", new BuildingAssociation("Bulldoze", 0x00, 0x7E029B) },
@@ -187,7 +187,7 @@ namespace CrowdControl.Games.Packs
             {"airport", new BuildingAssociation("Airport", 0x0C, 0x7E02A9) }
         };
 
-        private Dictionary<string, MessageAssociation> _game_messages = new Dictionary<string, MessageAssociation>(StringComparer.InvariantCultureIgnoreCase)
+        private Dictionary<string, MessageAssociation> _game_messages = new(StringComparer.InvariantCultureIgnoreCase)
         {
             //SafeName, MessageName, MessageID
             {"msgresidental", new MessageAssociation("More Residental Zones Needed.", 0x01) },
@@ -234,34 +234,34 @@ namespace CrowdControl.Games.Packs
                 {
                     //give and take sorta work. would like to give the player * 100 what the input is
                     //sometimes it doesnt take, not sure if its tripping up somewhere
-                    new Effect("Give Money", "givemoney", new[] {"simCitySNESMoney"}),
-                    new Effect("Take Money", "takemoney", new[] {"simCitySNESMoney"}),
-                    new Effect("Choose a Disaster ", "disaster", ItemKind.Folder),
-                    new Effect("Give gift of ", "present", ItemKind.Folder),
-                    new Effect("Switch building item to ", "building", ItemKind.Folder),
-                    new Effect("Send a helpful message ", "helpfulmessage", new[] {"simCitySNESHelpfulMessage"}),
-                    new Effect("Increase Transport Funds", "increasetransport", new[] {"quantity99"}),
-                    new Effect("Decrease Transport Funds", "decreasetransport", new[] {"quantity99"}),
-                    new Effect("Increase Police Funds", "increasepolice", new[] {"quantity99"}),
-                    new Effect("Decrease Police Funds", "decreasepolice", new[] {"quantity99"}),
-                    new Effect("Increase Fire Funds", "increasefire", new[] {"quantity99"}),
-                    new Effect("Decrease Fire Funds", "decreasefire", new[] {"quantity99"}),
-                    new Effect("Enable Demon Season", "demonseason"),
-                    new Effect("Change Month", "changemonth", new[] {"quantity99"}), //would be nice if this looped back? so if it was on 11 and i added 11, it would go to 10.
-                    new Effect("Change Year", "changeyear", new[] {"quantity99"}),
-                    new Effect("Game Over", "gameover"),
-                    new Effect("Force Bulldoze (15 seconds)", "forcebulldoze"),
-                    new Effect("Max Speed", "maxspeed"),
-                    new Effect("Medium Speed", "mediumspeed"),
-                    new Effect("Low Speed", "lowspeed"),
-                    new Effect("Stop Time", "stoptime"),
-                    new Effect("Enable Auto-Bulldoze", "enableautobulldoze"),
-                    new Effect("Disable Auto-Bulldoze", "disableautobulldoze"),
-                    new Effect("Enable Auto-Tax", "enableautotax"),
-                    new Effect("Disable Auto-Tax", "disableautotax"),
-                    new Effect("Enable Auto-Goto", "enableautogoto"),
-                    new Effect("Disable Auto-Goto", "disableautogoto"),
-                    new Effect("Shake the screen!", "shakescreen", new[] {"quantity9"})
+                    new("Give Money", "givemoney", new[] {"simCitySNESMoney"}),
+                    new("Take Money", "takemoney", new[] {"simCitySNESMoney"}),
+                    new("Choose a Disaster ", "disaster", ItemKind.Folder),
+                    new("Give gift of ", "present", ItemKind.Folder),
+                    new("Switch building item to ", "building", ItemKind.Folder),
+                    new("Send a helpful message ", "helpfulmessage", new[] {"simCitySNESHelpfulMessage"}),
+                    new("Increase Transport Funds", "increasetransport", new[] {"quantity99"}),
+                    new("Decrease Transport Funds", "decreasetransport", new[] {"quantity99"}),
+                    new("Increase Police Funds", "increasepolice", new[] {"quantity99"}),
+                    new("Decrease Police Funds", "decreasepolice", new[] {"quantity99"}),
+                    new("Increase Fire Funds", "increasefire", new[] {"quantity99"}),
+                    new("Decrease Fire Funds", "decreasefire", new[] {"quantity99"}),
+                    new("Enable Demon Season", "demonseason"),
+                    new("Change Month", "changemonth", new[] {"quantity99"}), //would be nice if this looped back? so if it was on 11 and i added 11, it would go to 10.
+                    new("Change Year", "changeyear", new[] {"quantity99"}),
+                    new("Game Over", "gameover"),
+                    new("Force Bulldoze (15 seconds)", "forcebulldoze"),
+                    new("Max Speed", "maxspeed"),
+                    new("Medium Speed", "mediumspeed"),
+                    new("Low Speed", "lowspeed"),
+                    new("Stop Time", "stoptime"),
+                    new("Enable Auto-Bulldoze", "enableautobulldoze"),
+                    new("Disable Auto-Bulldoze", "disableautobulldoze"),
+                    new("Enable Auto-Tax", "enableautotax"),
+                    new("Disable Auto-Tax", "disableautotax"),
+                    new("Enable Auto-Goto", "enableautogoto"),
+                    new("Disable Auto-Goto", "disableautogoto"),
+                    new("Shake the screen!", "shakescreen", new[] {"quantity9"})
                 };
 
                 effects.AddRange(_game_gifts.Take(15).Select(t => new Effect($"{t.Value.GiftName}", $"present_{t.Key}", "present")));
@@ -273,7 +273,7 @@ namespace CrowdControl.Games.Packs
             }
         }
 
-        public override List<ItemType> ItemTypes => new List<ItemType>(new[]
+        public override List<ItemType> ItemTypes => new(new[]
         {
             new ItemType("Quantity", "quantity99", ItemType.Subtype.Slider, "{\"min\":1,\"max\":99}"),
             new ItemType("Money x10", "simCitySNESMoney", ItemType.Subtype.Slider, "{\"min\":1,\"max\":9999}"),
@@ -281,7 +281,7 @@ namespace CrowdControl.Games.Packs
             new ItemType("Quantity", "quantity9", ItemType.Subtype.Slider, "{\"min\":1,\"max\":9}")
         });
 
-        public override List<ROMInfo> ROMTable => new List<ROMInfo>(new[]
+        public override List<ROMInfo> ROMTable => new(new[]
         {
             new ROMInfo("SimCity (v1.0) (U) (Headered)", "SimCitySNES.bps",
                 (stream, bytes) =>
@@ -297,9 +297,9 @@ namespace CrowdControl.Games.Packs
             
         });
 
-        public override List<(string, Action)> MenuActions => new List<(string, Action)>();
+        public override List<(string, Action)> MenuActions => new();
 
-        public override Game Game { get; } = new Game(29, "Sim City", "SimCity", "SNES", ConnectorType.SNESConnector);
+        public override Game Game { get; } = new(29, "Sim City", "SimCity", "SNES", ConnectorType.SNESConnector);
 
         protected override bool IsReady(EffectRequest request) => Connector.Read8(ADDR_GAMESTATE, out byte b) && (b == 0x00) && Connector.Read8(ADDR_GAME_TYPE, out byte a) && (a != 0x00);
 
@@ -366,7 +366,7 @@ namespace CrowdControl.Games.Packs
                                        Connector.Write8(ADDR_BUILD_ITEM, 0x00) &&
                                        Connector.Write8(ADDR_BUILD_FORCE, 0x01);
                             },
-                            TimeSpan.FromSeconds(0.2), true).WhenCompleted.Then(t =>
+                            TimeSpan.FromSeconds(0.2), true).WhenCompleted.Then(_ =>
                             {
                                 Connector.SendMessage($"{request.DisplayViewer}'s forced bulldoze is over!");
                                 ClearUI();
@@ -398,7 +398,7 @@ namespace CrowdControl.Games.Packs
                             }, TimeSpan.FromSeconds(2.5),
                             () => Connector.IsZero8(ADDR_GAMESTATE), TimeSpan.FromSeconds(1),
                             () => Connector.Write8(ADDR_SCREENSHAKE, 0x7F),
-                            TimeSpan.FromSeconds(0.5), true).WhenCompleted.Then(t => {
+                            TimeSpan.FromSeconds(0.5), true).WhenCompleted.Then(_ => {
                                 Connector.SendMessage($"{request.DisplayViewer}'s screenshake is over!");
                                 _shakescreen = false;
                             });
@@ -407,7 +407,7 @@ namespace CrowdControl.Games.Packs
                 case "gameover":
                     {
                         TryEffect(request,
-                            () => Connector.Write8(ADDR_GAMESTATE, 0xff),
+                            () => Connector.Write8(ADDR_GAMESTATE, 0x50),
                             () => true,
                             () =>
                             {
