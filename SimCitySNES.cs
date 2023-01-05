@@ -281,7 +281,7 @@ namespace CrowdControl.Games.Packs
             new ItemType("Quantity", "quantity9", ItemType.Subtype.Slider, "{\"min\":1,\"max\":9}")
         });
 
-        public override List<ROMInfo> ROMTable => new(new[]
+        public override ROMTable ROMTable => new[]
         {
             new ROMInfo("SimCity (v1.0) (U) (Headered)", "SimCitySNES.bps",
                 (stream, bytes) =>
@@ -290,12 +290,8 @@ namespace CrowdControl.Games.Packs
                     return deheadered.success ? Patching.BPS(stream, bytes) : deheadered;
                 }, ROMStatus.ValidUnpatched, s => Patching.MD5(s, "ee177068d94ede4c95ec540b0db255db")),
             new ROMInfo("SimCity (v1.0) (U) (Unheadered)", "SimCitySNES.bps", Patching.BPS, ROMStatus.ValidUnpatched, s => Patching.MD5(s, "23715fc7ef700b3999384d5be20f4db5")),
-
             new ROMInfo("SimCity - Crowd Control", null, Patching.Ignore, ROMStatus.ValidPatched, s => Patching.MD5(s, "d1077c8e9e8926cdb540f364925aaa9f"))
-
-
-            
-        });
+        };
 
         public override List<(string, Action)> MenuActions => new();
 
