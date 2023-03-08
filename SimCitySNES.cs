@@ -10,7 +10,7 @@ namespace CrowdControl.Games.Packs
     [UsedImplicitly]
     public class SimCitySNES : SNESEffectPack
     {
-        public SimCitySNES(IPlayer player, Func<CrowdControlBlock, bool> responseHandler, Action<object> statusUpdateHandler) : base(player, responseHandler, statusUpdateHandler) { }
+        public SimCitySNES(Player player, Func<CrowdControlBlock, bool> responseHandler, Action<object> statusUpdateHandler) : base(player, responseHandler, statusUpdateHandler) { }
 
         private const uint ADDR_GIFT1 = 0x7E03F5;
         private const uint ADDR_GIFT2 = 0x7E03F6;
@@ -226,7 +226,7 @@ namespace CrowdControl.Games.Packs
         };
 
 
-        public override List<Effect> Effects
+        public override EffectList Effects
         {
             get
             {
@@ -234,23 +234,28 @@ namespace CrowdControl.Games.Packs
                 {
                     //give and take sorta work. would like to give the player * 100 what the input is
                     //sometimes it doesnt take, not sure if its tripping up somewhere
-                    new("Give Money", "givemoney", new[] {"simCitySNESMoney"}),
-                    new("Take Money", "takemoney", new[] {"simCitySNESMoney"}),
-                    new("Choose a Disaster ", "disaster", ItemKind.Folder),
-                    new("Give gift of ", "present", ItemKind.Folder),
-                    new("Switch building item to ", "building", ItemKind.Folder),
-                    new("Send a helpful message ", "helpfulmessage", new[] {"simCitySNESHelpfulMessage"}),
-                    new("Increase Transport Funds", "increasetransport", new[] {"quantity99"}),
-                    new("Decrease Transport Funds", "decreasetransport", new[] {"quantity99"}),
-                    new("Increase Police Funds", "increasepolice", new[] {"quantity99"}),
-                    new("Decrease Police Funds", "decreasepolice", new[] {"quantity99"}),
-                    new("Increase Fire Funds", "increasefire", new[] {"quantity99"}),
-                    new("Decrease Fire Funds", "decreasefire", new[] {"quantity99"}),
+                    new("Give Money", "givemoney") { Quantity = 9999 },
+                    new("Take Money", "takemoney") { Quantity = 9999 },
+                    //new("Choose a Disaster ", "disaster", ItemKind.Folder),
+                    //new("Give gift of ", "present", ItemKind.Folder),
+                    //new("Switch building item to ", "building", ItemKind.Folder),
+                    new("Send a helpful message ", "helpfulmessage")
+                    {
+                        Parameters = new ParameterGroup("Message",
+                            _game_messages.Take(33).Select(t => new Parameter($"{t.Value.MessageName}", t.Key))
+                        )
+                    },
+                    new("Increase Transport Funds", "increasetransport") { Quantity = 99 },
+                    new("Decrease Transport Funds", "decreasetransport") { Quantity = 99 },
+                    new("Increase Police Funds", "increasepolice") { Quantity = 99 },
+                    new("Decrease Police Funds", "decreasepolice") { Quantity = 99 },
+                    new("Increase Fire Funds", "increasefire") { Quantity = 99 },
+                    new("Decrease Fire Funds", "decreasefire") { Quantity = 99 },
                     new("Enable Demon Season", "demonseason"),
-                    new("Change Month", "changemonth", new[] {"quantity99"}), //would be nice if this looped back? so if it was on 11 and i added 11, it would go to 10.
-                    new("Change Year", "changeyear", new[] {"quantity99"}),
+                    new("Change Month", "changemonth") { Quantity = 99 }, //would be nice if this looped back? so if it was on 11 and i added 11, it would go to 10.
+                    new("Change Year", "changeyear") { Quantity = 99 },
                     new("Game Over", "gameover"),
-                    new("Force Bulldoze (15 seconds)", "forcebulldoze"),
+                    new("Force Bulldoze", "forcebulldoze") { Duration = 15 },
                     new("Max Speed", "maxspeed"),
                     new("Medium Speed", "mediumspeed"),
                     new("Low Speed", "lowspeed"),
@@ -261,25 +266,17 @@ namespace CrowdControl.Games.Packs
                     new("Disable Auto-Tax", "disableautotax"),
                     new("Enable Auto-Goto", "enableautogoto"),
                     new("Disable Auto-Goto", "disableautogoto"),
-                    new("Shake the screen!", "shakescreen", new[] {"quantity9"})
+                    new("Shake the screen!", "shakescreen") { Quantity = 9 }
                 };
 
-                effects.AddRange(_game_gifts.Take(15).Select(t => new Effect($"{t.Value.GiftName}", $"present_{t.Key}", "present")));
-                effects.AddRange(_game_disasters.Take(7).Select(t => new Effect($"{t.Value.DisasterName}", $"disaster_{t.Key}", "disaster")));
-                effects.AddRange(_game_building.Take(15).Select(t => new Effect($"{t.Value.BuildingName}", $"building_{t.Key}", "building")));
-                effects.AddRange(_game_messages.Take(33).Select(t => new Effect($"{t.Value.MessageName}", t.Key, ItemKind.Usable, "simCitySNESHelpfulMessage")));
+                effects.AddRange(_game_gifts.Take(15).Select(t => new Effect($"Give {t.Value.GiftName}", $"present_{t.Key}") { Category = "Give Item" }));
+                effects.AddRange(_game_disasters.Take(7).Select(t => new Effect($"Send {t.Value.DisasterName}", $"disaster_{t.Key}") { Category = "Send Disasters" }));
+                effects.AddRange(_game_building.Take(15).Select(t => new Effect($"Set Building to {t.Value.BuildingName}", $"building_{t.Key}") { Category = "Set Active Building" }));
+                //effects.AddRange(_game_messages.Take(33).Select(t => new Effect($"{t.Value.MessageName}", t.Key, ItemKind.Usable, "simCitySNESHelpfulMessage")));
 
                 return effects;
             }
         }
-
-        public override List<ItemType> ItemTypes => new(new[]
-        {
-            new ItemType("Quantity", "quantity99", ItemType.Subtype.Slider, "{\"min\":1,\"max\":99}"),
-            new ItemType("Money x10", "simCitySNESMoney", ItemType.Subtype.Slider, "{\"min\":1,\"max\":9999}"),
-            new ItemType("Message", "simCitySNESHelpMessage", ItemType.Subtype.ItemList),
-            new ItemType("Quantity", "quantity9", ItemType.Subtype.Slider, "{\"min\":1,\"max\":9}")
-        });
 
         public override ROMTable ROMTable => new[]
         {
@@ -310,7 +307,7 @@ namespace CrowdControl.Games.Packs
             }
 
             sbyte sign = 1;
-            string[] codeParams = request.FinalCode.Split('_');
+            string[] codeParams = FinalCode(request).Split('_');
             switch (codeParams[0])
             {
                 case "demonseason":
@@ -372,7 +369,8 @@ namespace CrowdControl.Games.Packs
                     }
                 case "shakescreen":
                     {
-                        long seconds = request.AllItems[1].Reduce();
+                        uint seconds = request.Quantity;
+                        //long seconds = request.AllItems[1].Reduce();
                         /*StartTimed(request,
                             () => (!_shakescreen && Connector.Read8(ADDR_GAMESTATE, out byte b) && (b == 0x00) && Connector.Read8(ADDR_SCREENSHAKE, out byte c) && (c == 0x00)),
                             () =>
@@ -534,7 +532,8 @@ namespace CrowdControl.Games.Packs
                     goto case "givemoney";
                 case "givemoney":
                     {
-                        long money = request.AllItems[1].Reduce() * 10;
+                        uint money = request.Quantity;
+                        //long money = request.AllItems[1].Reduce() * 10;
                         long newTotal = 0;
                         TryEffect(request,
                             () =>
@@ -549,7 +548,8 @@ namespace CrowdControl.Games.Packs
                     }
                 case "increasetransport":
                     {
-                        byte tax = (byte)request.AllItems[1].Reduce();
+                        uint tax = request.Quantity;
+                        //byte tax = (byte)request.AllItems[1].Reduce();
                         TryEffect(request,
                             () => Connector.RangeAdd8(ADDR_TRANSIT_FUND, tax, 0, 100, false),
                             () => true,
@@ -561,7 +561,8 @@ namespace CrowdControl.Games.Packs
                     }
                 case "decreasetransport":
                     {
-                        byte tax = (byte)request.AllItems[1].Reduce();
+                        uint tax = request.Quantity;
+                        //byte tax = (byte)request.AllItems[1].Reduce();
                         TryEffect(request,
                             () => Connector.RangeAdd8(ADDR_TRANSIT_FUND, -tax, 0, 100, false),
                             () => true,
@@ -573,7 +574,8 @@ namespace CrowdControl.Games.Packs
                     }
                 case "increasepolice":
                     {
-                        byte tax = (byte)request.AllItems[1].Reduce();
+                        uint tax = request.Quantity;
+                        //byte tax = (byte)request.AllItems[1].Reduce();
                         TryEffect(request,
                             () => Connector.RangeAdd8(ADDR_POLICE_FUND, tax, 0, 100, false),
                             () => true,
@@ -585,7 +587,8 @@ namespace CrowdControl.Games.Packs
                     }
                 case "decreasepolice":
                     {
-                        byte tax = (byte)request.AllItems[1].Reduce();
+                        uint tax = request.Quantity;
+                        //byte tax = (byte)request.AllItems[1].Reduce();
                         TryEffect(request,
                             () => Connector.RangeAdd8(ADDR_POLICE_FUND, -tax, 0, 100, false),
                             () => true,
@@ -597,7 +600,8 @@ namespace CrowdControl.Games.Packs
                     }
                 case "increasefire":
                     {
-                        byte tax = (byte)request.AllItems[1].Reduce();
+                        uint tax = request.Quantity;
+                        //byte tax = (byte)request.AllItems[1].Reduce();
                         TryEffect(request,
                             () => Connector.RangeAdd8(ADDR_FIRE_FUND, tax, 0, 100, false),
                             () => true,
@@ -609,7 +613,8 @@ namespace CrowdControl.Games.Packs
                     }
                 case "decreasefire":
                     {
-                        byte tax = (byte)request.AllItems[1].Reduce();
+                        uint tax = request.Quantity;
+                        //byte tax = (byte)request.AllItems[1].Reduce();
                         TryEffect(request,
                             () => Connector.RangeAdd8(ADDR_FIRE_FUND, -tax, 0, 100, false),
                             () => true,
@@ -621,7 +626,8 @@ namespace CrowdControl.Games.Packs
                     }
                 case "changemonth":
                     {
-                        byte toAdd = (byte)request.AllItems[1].Reduce();
+                        uint toAdd = request.Quantity;
+                        //byte toAdd = (byte)request.AllItems[1].Reduce();
                         byte cMonth = 0;
                         TryEffect(request,
                             () => Connector.Read8(ADDR_MONTH, out cMonth),
@@ -640,7 +646,8 @@ namespace CrowdControl.Games.Packs
                     }
                 case "changeyear":
                     {
-                        byte year = (byte)request.AllItems[1].Reduce();
+                        uint year = request.Quantity;
+                        //byte year = (byte)request.AllItems[1].Reduce();
                         TryEffect(request,
                             () => Connector.RangeAdd16(ADDR_YEAR, year, 1, 9999, false),
                             () => true,
@@ -827,7 +834,7 @@ namespace CrowdControl.Games.Packs
 
         protected override bool StopEffect(EffectRequest request)
         {
-            switch (request.BaseCode)
+            switch (request.EffectID)
             {
                 case "disaster_ufo":
                     {
