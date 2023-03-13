@@ -10,7 +10,7 @@ namespace CrowdControl.Games.Packs
     [UsedImplicitly]
     public class SimCitySNES : SNESEffectPack
     {
-        public SimCitySNES(Player player, Func<CrowdControlBlock, bool> responseHandler, Action<object> statusUpdateHandler) : base(player, responseHandler, statusUpdateHandler) { }
+        public SimCitySNES(UserRecord player, Func<CrowdControlBlock, bool> responseHandler, Action<object> statusUpdateHandler) : base(player, responseHandler, statusUpdateHandler) { }
 
         private const uint ADDR_GIFT1 = 0x7E03F5;
         private const uint ADDR_GIFT2 = 0x7E03F6;
@@ -241,7 +241,7 @@ namespace CrowdControl.Games.Packs
                     //new("Switch building item to ", "building", ItemKind.Folder),
                     new("Send a helpful message ", "helpfulmessage")
                     {
-                        Parameters = new ParameterGroup("Message",
+                        Parameters = new ParameterDef("Message", "message",
                             _game_messages.Take(33).Select(t => new Parameter($"{t.Value.MessageName}", t.Key))
                         )
                     },
