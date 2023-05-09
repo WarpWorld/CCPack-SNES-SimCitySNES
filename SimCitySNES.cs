@@ -340,7 +340,7 @@ public class SimCitySNES : SNESEffectPack
     {
         if (!IsReady(request))
         {
-            DelayEffect(request, TimeSpan.FromSeconds(5));
+            DelayEffect(request);
             return;
         }
 
@@ -665,7 +665,6 @@ public class SimCitySNES : SNESEffectPack
 
     private void GivePresent(EffectRequest request, byte pType, string giftName)
     {
-
         TryEffect(request,
             () => Connector.Write8(ADDR_HELPER_ID, pType),
             () => Connector.Write8(ADDR_HELPER_MESSAGE, 0x01),
@@ -840,6 +839,7 @@ public class SimCitySNES : SNESEffectPack
     public override bool StopAllEffects()
     {
         //mind this is & and not &&, DO NOT change this
+        //base.StopAllEffects() should ALWAYS be called here
         return StopAll() & base.StopAllEffects();
     }
 }
