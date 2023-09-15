@@ -14,17 +14,17 @@ public class SimCitySNES : SNESEffectPack
         Action<object> statusUpdateHandler) : base(player, responseHandler, statusUpdateHandler)
     {
 
-        _bidwar_autobulldoze = new()
+        _bidwar_autobulldoze = new Dictionary<string, Func<bool>>
         {
             { "enabled", () => Connector.SetBits(ADDR_OPTIONS, 0x01, out _) },
             { "disabled", () => Connector.UnsetBits(ADDR_OPTIONS, 0x01, out _) }
         };
-        _bidwar_autotax = new()
+        _bidwar_autotax = new Dictionary<string, Func<bool>>
         {
             { "enabled", () => Connector.SetBits(ADDR_OPTIONS, 0x02, out _) },
             { "disabled", () => Connector.UnsetBits(ADDR_OPTIONS, 0x02, out _) }
         };
-        _bidwar_autogoto = new()
+        _bidwar_autogoto = new Dictionary<string, Func<bool>>
         {
             { "enabled", () => Connector.SetBits(ADDR_OPTIONS, 0x04, out _) },
             { "disabled", () => Connector.UnsetBits(ADDR_OPTIONS, 0x04, out _) }
