@@ -372,9 +372,13 @@ public class SimCitySNES : SNESEffectPack
                 RepeatAction(request,
                     () => (!_forcebulldoze) && Connector.IsZero8(ADDR_GAMESTATE),
                     () => {
-                        LockUI();
-                        _forcebulldoze = true;
-                        return Connector.SendMessage($"{request.DisplayViewer} has enabled the forced bulldoze.");
+                        bool success = LockUI();
+                        if (success)
+                        {
+                            _forcebulldoze = true;
+                            Connector.SendMessage($"{request.DisplayViewer} has enabled the forced bulldoze.");
+                        }
+                        return success;
                     }, TimeSpan.FromSeconds(2.5),
                     () => Connector.IsZero8(ADDR_GAMESTATE), TimeSpan.FromSeconds(1),
                     () =>
@@ -385,12 +389,7 @@ public class SimCitySNES : SNESEffectPack
                                Connector.Write8(ADDR_BUILD_ITEM, 0x00) &&
                                Connector.Write8(ADDR_BUILD_FORCE, 0x01);
                     },
-                    TimeSpan.FromSeconds(0.2), true).WhenCompleted.Then(_ =>
-                {
-                    Connector.SendMessage($"{request.DisplayViewer}'s forced bulldoze is over!");
-                    ClearUI();
-                    _forcebulldoze = false;
-                });
+                    TimeSpan.FromSeconds(0.2), true);
                 return;
             }
             case "shakescreen":
@@ -693,10 +692,11 @@ public class SimCitySNES : SNESEffectPack
             () => Connector.Write8(ADDR_BUILD_ITEM, bType),
             () =>
             {
-                ClearUI(); //I know we can do this better, we have the current active ID with the first Read above.
+                bool result = ClearUI(); //I know we can do this better, we have the current active ID with the first Read above.
                 //I just didn't know how to get that variable outside of spot to then write 00 to the ADDR_BUILD_SELECTION_BASE + bType
-                Connector.Write8(BuildingUIAddress, 0x01);
-                Connector.SendMessage($"{request.DisplayViewer} forced you to build only {buildingName}!");
+                result &= Connector.Write8(BuildingUIAddress, 0x01);
+                if (result) Connector.SendMessage($"{request.DisplayViewer} forced you to build only {buildingName}!");
+                return result;
             });
     }
 
@@ -713,50 +713,14 @@ public class SimCitySNES : SNESEffectPack
             });
     }
 
-    private void ClearUI() => Connector.Write(0x7E029B, new byte[0x7E02AB - 0x7E029B]);
-    /*{
-        Connector.Write8(0x7E029B, 0x00);
-        Connector.Write8(0x7E029C, 0x00);
-        Connector.Write8(0x7E029D, 0x00);
-        Connector.Write8(0x7E029E, 0x00);
-        Connector.Write8(0x7E029F, 0x00);
-        Connector.Write8(0x7E02A0, 0x00);
-        Connector.Write8(0x7E02A1, 0x00);
-        Connector.Write8(0x7E02A2, 0x00);
-        Connector.Write8(0x7E02A3, 0x00);
-        Connector.Write8(0x7E02A4, 0x00);
-        Connector.Write8(0x7E02A5, 0x00);
-        Connector.Write8(0x7E02A6, 0x00);
-        Connector.Write8(0x7E02A7, 0x00);
-        Connector.Write8(0x7E02A8, 0x00);
-        Connector.Write8(0x7E02A9, 0x00);
-        Connector.Write8(0x7E02AA, 0x00);
-    }*/
+    private bool ClearUI() => Connector.Write(0x7E029B, new byte[0x7E02AB - 0x7E029B]);
 
-    private void LockUI() => Connector.Write(0x7E029B, Enumerable.Repeat<byte>(0x01, 0x7E02AB - 0x7E029B).ToArray());
-    /*{
-        Connector.Write8(0x7E029B, 0x01);
-        Connector.Write8(0x7E029C, 0x01);
-        Connector.Write8(0x7E029D, 0x01);
-        Connector.Write8(0x7E029E, 0x01);
-        Connector.Write8(0x7E029F, 0x01);
-        Connector.Write8(0x7E02A0, 0x01);
-        Connector.Write8(0x7E02A1, 0x01);
-        Connector.Write8(0x7E02A2, 0x01);
-        Connector.Write8(0x7E02A3, 0x01);
-        Connector.Write8(0x7E02A4, 0x01);
-        Connector.Write8(0x7E02A5, 0x01);
-        Connector.Write8(0x7E02A6, 0x01);
-        Connector.Write8(0x7E02A7, 0x01);
-        Connector.Write8(0x7E02A8, 0x01);
-        Connector.Write8(0x7E02A9, 0x01);
-        Connector.Write8(0x7E02AA, 0x01);
-    }*/
+    private bool LockUI() => Connector.Write(0x7E029B, Enumerable.Repeat<byte>(0x01, 0x7E02AB - 0x7E029B).ToArray());
 
     private bool StopAll()
     {
         bool result = true;
-        ClearUI();
+        result &= ClearUI();
         result &= Connector.Write8(ADDR_SCREENSHAKE, 0x00);
         result &= Connector.Write8(ADDR_BUILD_ITEM, 0x00);
         result &= Connector.Write8(ADDR_DEMON_SEASON, 0x00);
@@ -812,11 +776,12 @@ public class SimCitySNES : SNESEffectPack
             }
             case "forcebulldoze":
             {
-                bool result = Connector.Unfreeze(ADDR_BUILD_ITEM) && Connector.Unfreeze(ADDR_BUILD_FORCE);
+                bool result = Connector.Unfreeze(ADDR_BUILD_ITEM);
+                result &= Connector.Unfreeze(ADDR_BUILD_FORCE);
+                result &= ClearUI();
                 if (result)
                 {
                     Connector.SendMessage($"{request.DisplayViewer}'s forced bulldoze is over!");
-                    ClearUI();
                     _forcebulldoze = false;
                 }
                 return result;
