@@ -655,6 +655,9 @@ public class SimCitySNES : SNESEffectPack
                 var mType = _game_messages[codeParams[1]];
                 SendHelpfulMessage(request, mType.MessageID, mType.MessageName);
                 return;
+            default:
+                Respond(request, EffectStatus.FailPermanent, "Unknown effect ID: " + codeParams[0]);
+                return;
         }
     }
 
