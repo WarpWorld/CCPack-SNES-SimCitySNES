@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using CrowdControl.Common;
+﻿using CrowdControl.Common;
 using JetBrains.Annotations;
 using ConnectorType = CrowdControl.Common.ConnectorType;
 
@@ -256,10 +253,8 @@ public class SimCitySNES : SNESEffectPack
                 new Parameter("Enabled", "enabled"),
                 new Parameter("Disabled", "disabled"));
 
-            List<Effect> effects = new List<Effect>
-            {
-                //give and take sorta work. would like to give the player * 100 what the input is
-                //sometimes it doesnt take, not sure if its tripping up somewhere
+            List<Effect> effects =
+            [
                 new("Give Money", "givemoney") { Quantity = 9999 },
                 new("Take Money", "takemoney") { Quantity = 9999 },
                 //new("Choose a Disaster ", "disaster", ItemKind.Folder),
@@ -271,6 +266,7 @@ public class SimCitySNES : SNESEffectPack
                         _game_messages.Take(33).Select(t => new Parameter($"{t.Value.MessageName}", t.Key))
                     )
                 },
+
                 new("Increase Transport Funds", "increasetransport") { Quantity = 99 },
                 new("Decrease Transport Funds", "decreasetransport") { Quantity = 99 },
                 new("Increase Police Funds", "increasepolice") { Quantity = 99 },
@@ -282,6 +278,7 @@ public class SimCitySNES : SNESEffectPack
                 {
                     Quantity = 99
                 }, //would be nice if this looped back? so if it was on 11 and i added 11, it would go to 10.
+
                 new("Change Year", "changeyear") { Quantity = 99 },
                 new("Game Over", "gameover"),
                 new("Force Bulldoze", "forcebulldoze") { Duration = 15 },
@@ -302,7 +299,7 @@ public class SimCitySNES : SNESEffectPack
                 new("Auto-Goto", "autogoto", ItemKind.BidWar) { Parameters = enableDisable },
 
                 new("Shake the screen!", "shakescreen") { Quantity = 9 }
-            };
+            ];
 
             effects.AddRange(_game_gifts.Take(15).Select(t =>
                 new Effect($"Give {t.Value.GiftName}", $"present_{t.Key}") { Category = "Give Item" }));
@@ -328,7 +325,7 @@ public class SimCitySNES : SNESEffectPack
         new ROMInfo("SimCity - Crowd Control", null, Patching.Ignore, ROMStatus.ValidPatched, s => Patching.MD5(s, "d1077c8e9e8926cdb540f364925aaa9f"))
     };
 
-    public override List<(string, Action)> MenuActions => new();
+    public override List<(string, Action)> MenuActions => [];
 
     public override Game Game { get; } = new("Sim City", "SimCitySNES", "SNES", ConnectorType.SNESConnector);
 
