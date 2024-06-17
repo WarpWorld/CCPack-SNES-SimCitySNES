@@ -333,12 +333,6 @@ public class SimCitySNES : SNESEffectPack
 
     protected override void StartEffect(EffectRequest request)
     {
-        if (!IsReady(request))
-        {
-            DelayEffect(request);
-            return;
-        }
-
         sbyte sign = 1;
         string[] codeParams = FinalCode(request).Split('_');
         switch (codeParams[0])
