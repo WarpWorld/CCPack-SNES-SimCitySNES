@@ -329,7 +329,14 @@ public class SimCitySNES : SNESEffectPack
 
     public override Game Game { get; } = new("Sim City", "SimCitySNES", "SNES", ConnectorType.SNESConnector);
 
-    protected override bool IsReady(EffectRequest? request) => Connector.Read8(ADDR_GAMESTATE, out byte b) && (b == 0x00) && Connector.Read8(ADDR_GAME_TYPE, out byte a) && (a != 0x00);
+    protected override GameState GetGameState()
+    {
+        if (!Connector.Read8(ADDR_GAMESTATE, out byte b)) return GameState.Unknown;
+        if (b != 0x00) return GameState.WrongMode;
+        if (!Connector.Read8(ADDR_GAME_TYPE, out byte a)) return GameState.Unknown;
+        if (a == 0x00) return GameState.WrongMode;
+        return GameState.Ready;
+    }
 
     protected override void StartEffect(EffectRequest request)
     {
