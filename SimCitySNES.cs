@@ -50,7 +50,6 @@ public class SimCitySNES : SNESEffectPack
     private const uint ADDR_CURSOR_X = 0x7E01EB;
     private const uint ADDR_CURSOR_Y = 0x7E01ED;
 
-
     private const uint ADDR_GAME_TYPE   = 0x7E003E;
     private const uint ADDR_SCENARIO    = 0x7E0040;
     private const uint ADDR_POPULATION  = 0x7E0BA5;
@@ -244,7 +243,6 @@ public class SimCitySNES : SNESEffectPack
         {"msggoodbye", new MessageAssociation("See you soon. Good bye!", 0x21) }
     };
 
-
     public override EffectList Effects
     {
         get
@@ -325,9 +323,29 @@ public class SimCitySNES : SNESEffectPack
         new ROMInfo("SimCity - Crowd Control", null, Patching.Ignore, ROMStatus.ValidPatched, s => Patching.MD5(s, "d1077c8e9e8926cdb540f364925aaa9f"))
     };
 
-    public override List<(string, Action)> MenuActions => [];
-
     public override Game Game { get; } = new("Sim City", "SimCitySNES", "SNES", ConnectorType.SNESConnector);
+
+
+    public override List<string> MetadataCommon { get; } = ["money", "gameState"];
+
+    protected override async Task<DataResponse> RequestData(string key)
+    {
+        switch (key)
+        {
+            case "money":
+                {
+                    if (!Connector.Read24LE(ADDR_MONEY, out uint money)) return DataResponse.DelayEstimated(key);
+                    return DataResponse.Success(key, money);
+                }
+            case "gameState":
+                {
+                    if (!Connector.Read8(ADDR_GAMESTATE, out byte state)) return DataResponse.DelayEstimated(key);
+                    return DataResponse.Success(key, state);
+                }
+            default:
+                return await base.RequestData(key);
+        }
+    }
 
     protected override GameState GetGameState()
     {
