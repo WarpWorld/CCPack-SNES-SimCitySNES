@@ -1,5 +1,6 @@
 ﻿using CrowdControl.Common;
 using JetBrains.Annotations;
+using ConnectorLib;
 using ConnectorType = CrowdControl.Common.ConnectorType;
 
 namespace CrowdControl.Games.Packs.SimCitySNES;
@@ -7,10 +8,8 @@ namespace CrowdControl.Games.Packs.SimCitySNES;
 [UsedImplicitly]
 public class SimCitySNES : SNESEffectPack
 {
-    public SimCitySNES(UserRecord player, Func<CrowdControlBlock, bool> responseHandler,
-        Action<object> statusUpdateHandler) : base(player, responseHandler, statusUpdateHandler)
+    public SimCitySNES(UserRecord player, Func<CrowdControlBlock, bool> responseHandler, Action<object> statusUpdateHandler) : base(player, responseHandler, statusUpdateHandler)
     {
-
         _bidwar_autobulldoze = new Dictionary<string, Func<bool>>
         {
             { "enabled", () => Connector.SetBits(ADDR_OPTIONS, 0x01, out _) },
@@ -292,9 +291,9 @@ public class SimCitySNES : SNESEffectPack
                 new("Enable Auto-Goto", "enableautogoto"),
                 new("Disable Auto-Goto", "disableautogoto"),*/
 
-                new("Auto-Bulldoze", "autobulldoze", ItemKind.BidWar) { Parameters = enableDisable },
+                /*new("Auto-Bulldoze", "autobulldoze", ItemKind.BidWar) { Parameters = enableDisable },
                 new("Auto-Tax", "autotax", ItemKind.BidWar) { Parameters = enableDisable },
-                new("Auto-Goto", "autogoto", ItemKind.BidWar) { Parameters = enableDisable },
+                new("Auto-Goto", "autogoto", ItemKind.BidWar) { Parameters = enableDisable },*/
 
                 new("Shake the screen!", "shakescreen") { Quantity = 9 }
             ];
