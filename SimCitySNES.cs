@@ -246,14 +246,10 @@ public class SimCitySNES : SNESEffectPack
     {
         get
         {
-            ParameterDef enableDisable = new("Enabled / Disabled", "enableDisable",
-                new Parameter("Enabled", "enabled"),
-                new Parameter("Disabled", "disabled"));
-
             List<Effect> effects =
             [
-                new("Give Money", "givemoney") { Quantity = 9999 },
-                new("Take Money", "takemoney") { Quantity = 9999 },
+                new("Give Money", "givemoney") { Quantity = 9999, Alignment = (Alignment)Morality.SlightlyHelpful + Orderliness.Controlled },
+                new("Take Money", "takemoney") { Quantity = 9999, Alignment = (Alignment)Morality.SlightlyHarmful + Orderliness.Controlled },
                 //new("Choose a Disaster ", "disaster", ItemKind.Folder),
                 //new("Give gift of ", "present", ItemKind.Folder),
                 //new("Switch building item to ", "building", ItemKind.Folder),
@@ -261,28 +257,31 @@ public class SimCitySNES : SNESEffectPack
                 {
                     Parameters = new ParameterDef("Message", "message",
                         _game_messages.Take(33).Select(t => new Parameter($"{t.Value.MessageName}", t.Key))
-                    )
+                    ),
+                    Alignment = (Alignment)Morality.SlightlyHelpful + Orderliness.Controlled
                 },
 
-                new("Increase Transport Funds", "increasetransport") { Quantity = 99 },
-                new("Decrease Transport Funds", "decreasetransport") { Quantity = 99 },
-                new("Increase Police Funds", "increasepolice") { Quantity = 99 },
-                new("Decrease Police Funds", "decreasepolice") { Quantity = 99 },
-                new("Increase Fire Funds", "increasefire") { Quantity = 99 },
-                new("Decrease Fire Funds", "decreasefire") { Quantity = 99 },
-                new("Enable Demon Season", "demonseason") { Duration = 60, IsDurationEditable = false },
+                new("Increase Transport Funds", "increasetransport") { Quantity = 99, Alignment = (Alignment)Morality.SlightlyHelpful + Orderliness.Controlled },
+                new("Decrease Transport Funds", "decreasetransport") { Quantity = 99, Alignment = (Alignment)Morality.SlightlyHarmful + Orderliness.Controlled },
+                new("Increase Police Funds", "increasepolice") { Quantity = 99, Alignment = (Alignment)Morality.SlightlyHelpful + Orderliness.Controlled },
+                new("Decrease Police Funds", "decreasepolice") { Quantity = 99, Alignment = (Alignment)Morality.SlightlyHarmful + Orderliness.Controlled },
+                new("Increase Fire Funds", "increasefire") { Quantity = 99, Alignment = (Alignment)Morality.SlightlyHelpful + Orderliness.Controlled },
+                new("Decrease Fire Funds", "decreasefire") { Quantity = 99, Alignment = (Alignment)Morality.SlightlyHarmful + Orderliness.Controlled },
+                new("Enable Demon Season", "demonseason") { Duration = 60, IsDurationEditable = false, Alignment = (Alignment)Morality.Neutral + Orderliness.Chaotic } // TODO: verify if this should be SlightlyHarmful instead.
+                ,
                 new("Change Month", "changemonth")
                 {
-                    Quantity = 99
+                    Quantity = 99,
+                    Alignment = (Alignment)Morality.Neutral + Orderliness.Controlled
                 }, //would be nice if this looped back? so if it was on 11 and i added 11, it would go to 10.
 
-                new("Change Year", "changeyear") { Quantity = 99 },
-                new("Game Over", "gameover"),
-                new("Force Bulldoze", "forcebulldoze") { Duration = 15 },
-                new("Max Speed", "maxspeed"),
-                new("Medium Speed", "mediumspeed"),
-                new("Low Speed", "lowspeed"),
-                new("Stop Time", "stoptime"),
+                new("Change Year", "changeyear") { Quantity = 99, Alignment = (Alignment)Morality.Neutral + Orderliness.Controlled },
+                new("Game Over", "gameover" ) { Alignment = (Alignment)Morality.ExtremelyHarmful + Orderliness.Controlled },
+                new("Force Bulldoze", "forcebulldoze") { Duration = 15, Alignment = (Alignment)Morality.VeryHarmful + Orderliness.Chaotic },
+                new("Max Speed", "maxspeed") { Alignment = (Alignment)Morality.Neutral + Orderliness.Controlled },
+                new("Medium Speed", "mediumspeed") { Alignment = (Alignment)Morality.Neutral + Orderliness.Controlled },
+                new("Low Speed", "lowspeed") { Alignment = (Alignment)Morality.SlightlyHarmful + Orderliness.Controlled },
+                new("Stop Time", "stoptime") { Alignment = (Alignment)Morality.Neutral + Orderliness.Controlled },
 
                 /*new("Enable Auto-Bulldoze", "enableautobulldoze"),
                 new("Disable Auto-Bulldoze", "disableautobulldoze"),
@@ -295,15 +294,17 @@ public class SimCitySNES : SNESEffectPack
                 new("Auto-Tax", "autotax", ItemKind.BidWar) { Parameters = enableDisable },
                 new("Auto-Goto", "autogoto", ItemKind.BidWar) { Parameters = enableDisable },*/
 
-                new("Shake the screen!", "shakescreen") { Quantity = 9 }
+                new("Shake the screen!", "shakescreen") { Quantity = 9, Alignment = (Alignment)Morality.SlightlyHarmful + Orderliness.Chaotic }
             ];
 
             effects.AddRange(_game_gifts.Take(15).Select(t =>
-                new Effect($"Give {t.Value.GiftName}", $"present_{t.Key}") { Category = "Give Item" }));
+                new Effect($"Give {t.Value.GiftName}", $"present_{t.Key}") { Category = "Give Item", Alignment = (Alignment)Morality.SlightlyHelpful + Orderliness.Controlled }));
             effects.AddRange(_game_disasters.Take(7).Select(t =>
-                new Effect($"Send {t.Value.DisasterName}", $"disaster_{t.Key}") { Category = "Send Disasters" }));
+                new Effect($"Send {t.Value.DisasterName}", $"disaster_{t.Key}") { Category = "Send Disasters", Alignment = (Alignment)Morality.SlightlyHelpful + Orderliness.Controlled
+                }));
             effects.AddRange(_game_building.Take(15).Select(t =>
-                new Effect($"Set Building to {t.Value.BuildingName}", $"building_{t.Key}") { Category = "Set Active Building" }));
+                new Effect($"Set Building to {t.Value.BuildingName}", $"building_{t.Key}") { Category = "Set Active Building", Alignment = (Alignment)Morality.SlightlyHelpful + Orderliness.Controlled
+                }));
             //effects.AddRange(_game_messages.Take(33).Select(t => new Effect($"{t.Value.MessageName}", t.Key, ItemKind.Usable, "simCitySNESHelpfulMessage")));
 
             return effects;
@@ -825,3 +826,4 @@ public class SimCitySNES : SNESEffectPack
         return success;
     }
 }
+
