@@ -10,17 +10,17 @@ public class SimCitySNES : SNESEffectPack
 {
     public SimCitySNES(UserRecord player, Func<CrowdControlBlock, bool> responseHandler, Action<object> statusUpdateHandler) : base(player, responseHandler, statusUpdateHandler)
     {
-        _bidwar_autobulldoze = new Dictionary<string, Func<bool>>
+        _bidwar_autobulldoze = new()
         {
             { "enabled", () => Connector.SetBits(ADDR_OPTIONS, 0x01, out _) },
             { "disabled", () => Connector.UnsetBits(ADDR_OPTIONS, 0x01, out _) }
         };
-        _bidwar_autotax = new Dictionary<string, Func<bool>>
+        _bidwar_autotax = new()
         {
             { "enabled", () => Connector.SetBits(ADDR_OPTIONS, 0x02, out _) },
             { "disabled", () => Connector.UnsetBits(ADDR_OPTIONS, 0x02, out _) }
         };
-        _bidwar_autogoto = new Dictionary<string, Func<bool>>
+        _bidwar_autogoto = new()
         {
             { "enabled", () => Connector.SetBits(ADDR_OPTIONS, 0x04, out _) },
             { "disabled", () => Connector.UnsetBits(ADDR_OPTIONS, 0x04, out _) }
@@ -145,21 +145,21 @@ public class SimCitySNES : SNESEffectPack
     private readonly Dictionary<string, GiftAssociation> _game_gifts = new(StringComparer.InvariantCultureIgnoreCase)
     {
         //SafeName, MessageName, giftID, messageID
-        {"mayorhouse", new GiftAssociation("Mayor House", 0x01, 0x2C) },
-        {"bank", new GiftAssociation("Bank", 0x02, 0x0B) },
-        {"park", new GiftAssociation("Park", 0x03, 0x0D) }, //this messageID lets them pick between park or casino
-        {"casino", new GiftAssociation("Casino", 0x05, 0x0D) }, //but we know the ID so we could still force the choice
-        {"zoo", new GiftAssociation("Zoo", 0x04, 0x0E) },
-        {"landfill", new GiftAssociation("Land Fill", 0x06, 0x10) },
-        {"policehq", new GiftAssociation("Police HQ", 0x07, 0x11) },
-        {"firehq", new GiftAssociation("Fire Department HQ", 0x08, 0x12) },
-        {"fountain", new GiftAssociation("Fountain", 0x09, 0x13) },
-        {"mariostatue", new GiftAssociation("Mario Statue", 0x0A, 0x14) },
-        {"expo", new GiftAssociation("Expo", 0x0B, 0x16) },
-        {"windmill", new GiftAssociation("Windmill", 0x0C, 0x17) },
-        {"library", new GiftAssociation("Library", 0x0D, 0x18) },
-        {"largepark", new GiftAssociation("Large Park", 0x0E, 0x19) },
-        {"station", new GiftAssociation("Train Station", 0x0F, 0x1A) }
+        {"mayorhouse", new("Mayor House", 0x01, 0x2C) },
+        {"bank", new("Bank", 0x02, 0x0B) },
+        {"park", new("Park", 0x03, 0x0D) }, //this messageID lets them pick between park or casino
+        {"casino", new("Casino", 0x05, 0x0D) }, //but we know the ID so we could still force the choice
+        {"zoo", new("Zoo", 0x04, 0x0E) },
+        {"landfill", new("Land Fill", 0x06, 0x10) },
+        {"policehq", new("Police HQ", 0x07, 0x11) },
+        {"firehq", new("Fire Department HQ", 0x08, 0x12) },
+        {"fountain", new("Fountain", 0x09, 0x13) },
+        {"mariostatue", new("Mario Statue", 0x0A, 0x14) },
+        {"expo", new("Expo", 0x0B, 0x16) },
+        {"windmill", new("Windmill", 0x0C, 0x17) },
+        {"library", new("Library", 0x0D, 0x18) },
+        {"largepark", new("Large Park", 0x0E, 0x19) },
+        {"station", new("Train Station", 0x0F, 0x1A) }
     };
 
     private readonly Dictionary<string, DisasterAssociation> _game_disasters = new(StringComparer.InvariantCultureIgnoreCase)
@@ -169,77 +169,77 @@ public class SimCitySNES : SNESEffectPack
         //bowser, and torando need their disasterCheck value to be 0
         //but things like planecrash needs it to be 1 as it will cause that plane to then crash
 
-        {"bowser", new DisasterAssociation("Bowser", 0x20, 0x09, 0x7E0A91, 0) },
-        {"earthquake", new DisasterAssociation("Earthquake", 0x10, 0x0A, 0x7E0A80, 0) },
-        {"fire", new DisasterAssociation("Fire", 0x01, 0x20, 0x7E0A80, 0) },
-        {"flood", new DisasterAssociation("Flood", 0x02, 0x21, 0x7E0A80, 0) },
-        {"planecrash", new DisasterAssociation("Plane Crash", 0x04, 0x22, 0x7E0A8D, 1) },
-        {"tornado", new DisasterAssociation("Tornado", 0x08, 0x23, 0x7E0A8B, 0) },
-        {"ufo", new DisasterAssociation("UFO Attack", 0xFF, 0x30, 0x7E0A80, 0) },
+        {"bowser", new("Bowser", 0x20, 0x09, 0x7E0A91, 0) },
+        {"earthquake", new("Earthquake", 0x10, 0x0A, 0x7E0A80, 0) },
+        {"fire", new("Fire", 0x01, 0x20, 0x7E0A80, 0) },
+        {"flood", new("Flood", 0x02, 0x21, 0x7E0A80, 0) },
+        {"planecrash", new("Plane Crash", 0x04, 0x22, 0x7E0A8D, 1) },
+        {"tornado", new("Tornado", 0x08, 0x23, 0x7E0A8B, 0) },
+        {"ufo", new("UFO Attack", 0xFF, 0x30, 0x7E0A80, 0) },
         //Only the above I know how to trigger correctly, sadly setting the other unused flags do nothing
         //the below can be trigger sometimes by poking some additional bits but seem in-consistent 
-        {"nuclear", new DisasterAssociation("Nuclear Explosion", 0x00, 0x24, 0x7E0A80, 0) },
-        {"shipwreck", new DisasterAssociation("Shipwreck", 0x00, 0x2B, 0x7E0A96, 0) }, //this one spawns a ship in the bottom right and causes it to wreck if the map has no water
-        {"disaster", new DisasterAssociation("Unknown Disaster", 0x00, 0x3D, 0x7E0A80, 0) } //This one just gives the warning. 
+        {"nuclear", new("Nuclear Explosion", 0x00, 0x24, 0x7E0A80, 0) },
+        {"shipwreck", new("Shipwreck", 0x00, 0x2B, 0x7E0A96, 0) }, //this one spawns a ship in the bottom right and causes it to wreck if the map has no water
+        {"disaster", new("Unknown Disaster", 0x00, 0x3D, 0x7E0A80, 0) } //This one just gives the warning. 
         //, 0x7E0A80 is a place holder to just let it trigger
     };
 
     private readonly Dictionary<string, BuildingAssociation> _game_building = new(StringComparer.InvariantCultureIgnoreCase)
     {
         //SafeName, BuildingName, BuildingID, BuildingUI, Cost
-        {"bulldoze", new BuildingAssociation("Bulldoze", 0x00, 0x7E029B, 1) },
-        {"roads", new BuildingAssociation("Roads", 0x01, 0x7E029C, 10) },
-        {"rails", new BuildingAssociation("Rails", 0x02, 0x7E029D, 20) },
-        {"power", new BuildingAssociation("Powerlines", 0x03, 0x7E029E, 5) },
-        {"park", new BuildingAssociation("Park", 0x04, 0x7E029F, 10) },
-        {"residental", new BuildingAssociation("Residental", 0x05, 0x7E02A0, 100) },
-        {"commercial", new BuildingAssociation("Commercial", 0x06, 0x7E02A1, 100) },
-        {"industrial", new BuildingAssociation("Industrial", 0x07, 0x7E02A2, 100) },
-        {"policedept", new BuildingAssociation("Police Department", 0x08, 0x7E02A3, 500) },
-        {"firedept", new BuildingAssociation("Fire Station", 0x09, 0x7E02A4, 500) },
-        {"stadium", new BuildingAssociation("Stadium", 0x0A, 0x7E02A5, 3000) },
-        {"seaport", new BuildingAssociation("Sea Port", 0x0B, 0x7E02A6, 5000) },
-        {"coal", new BuildingAssociation("Coal Power", 0x0E, 0x7E02A7, 3000) },
-        {"nuclear", new BuildingAssociation("Nuclear Power", 0x0D, 0x7E02A8, 5000) },
-        {"airport", new BuildingAssociation("Airport", 0x0C, 0x7E02A9, 10000) }
+        {"bulldoze", new("Bulldoze", 0x00, 0x7E029B, 1) },
+        {"roads", new("Roads", 0x01, 0x7E029C, 10) },
+        {"rails", new("Rails", 0x02, 0x7E029D, 20) },
+        {"power", new("Powerlines", 0x03, 0x7E029E, 5) },
+        {"park", new("Park", 0x04, 0x7E029F, 10) },
+        {"residental", new("Residental", 0x05, 0x7E02A0, 100) },
+        {"commercial", new("Commercial", 0x06, 0x7E02A1, 100) },
+        {"industrial", new("Industrial", 0x07, 0x7E02A2, 100) },
+        {"policedept", new("Police Department", 0x08, 0x7E02A3, 500) },
+        {"firedept", new("Fire Station", 0x09, 0x7E02A4, 500) },
+        {"stadium", new("Stadium", 0x0A, 0x7E02A5, 3000) },
+        {"seaport", new("Sea Port", 0x0B, 0x7E02A6, 5000) },
+        {"coal", new("Coal Power", 0x0E, 0x7E02A7, 3000) },
+        {"nuclear", new("Nuclear Power", 0x0D, 0x7E02A8, 5000) },
+        {"airport", new("Airport", 0x0C, 0x7E02A9, 10000) }
     };
 
     private readonly Dictionary<string, MessageAssociation> _game_messages = new(StringComparer.InvariantCultureIgnoreCase)
     {
         //SafeName, MessageName, MessageID
-        {"msgresidental", new MessageAssociation("More Residental Zones Needed.", 0x01) },
-        {"msgcommercial", new MessageAssociation("More Commerical Zones Needed.", 0x02) },
-        {"msgindustrial", new MessageAssociation("More Industrial Zones Needed.", 0x03) },
-        {"msgroads", new MessageAssociation("More roads required.", 0x04) },
-        {"msgrail", new MessageAssociation("Inadequate Rail System.", 0x05) },
-        {"msgpowerplant", new MessageAssociation("Build a Power Plant.", 0x06) },
-        {"msgstadium", new MessageAssociation("Residents demand a Stadium.", 0x07) },
-        {"msgseaport", new MessageAssociation("Industry requires a Seas Port.", 0x08) },
-        {"msgairport", new MessageAssociation("Commerce requires an Airport.", 0x09) },
-        {"msgpollution", new MessageAssociation("Pollution very high.", 0x0A) },
-        {"msgcrime", new MessageAssociation("Crime very high.", 0x0B) },
-        {"msgtraffic", new MessageAssociation("Frequent traffic james reported.", 0x0C) },
-        {"msgfiredept", new MessageAssociation("Citizens demand a Fire Department.", 0x0D) },
-        {"msgpolicedept", new MessageAssociation("Citizens demand a Police Department.", 0x0E) },
-        {"msgblackouts", new MessageAssociation("Blackouts reported. Check power map.", 0x0F) },
-        {"msgtax", new MessageAssociation("Citizens upset. The tax rate is too high.", 0x10) },
-        {"msgdeteriorating", new MessageAssociation("Roads deteriorating, due to lack of funds.", 0x11) },
-        {"msgfirefund", new MessageAssociation("Fire departments need funding.", 0x12) },
-        {"msgpolicefund", new MessageAssociation("Police departments need funding.", 0x13) },
-        {"msgshipwreck", new MessageAssociation("Shipwreck reported!", 0x14) },
-        {"msg5years", new MessageAssociation("5 years to complete scenario.", 0x15) },
-        {"msg4years", new MessageAssociation("4 years to complete scenario.", 0x16) },
-        {"msg3years", new MessageAssociation("3 years to complete scenario.", 0x17) },
-        {"msgexplosion", new MessageAssociation("Explosion detected!", 0x18) },
-        {"msg2years", new MessageAssociation("2 years to complete scenario.", 0x19) },
-        {"msg1year", new MessageAssociation("1 year to complete scenario.", 0x1A) },
-        {"msgbrownouts", new MessageAssociation("Brownouts, build another Power Plant.", 0x1B) },
-        {"msgheavytraffic", new MessageAssociation("Heavy Traffic reported.", 0x1C) },
+        {"msgresidental", new("More Residental Zones Needed.", 0x01) },
+        {"msgcommercial", new("More Commerical Zones Needed.", 0x02) },
+        {"msgindustrial", new("More Industrial Zones Needed.", 0x03) },
+        {"msgroads", new("More roads required.", 0x04) },
+        {"msgrail", new("Inadequate Rail System.", 0x05) },
+        {"msgpowerplant", new("Build a Power Plant.", 0x06) },
+        {"msgstadium", new("Residents demand a Stadium.", 0x07) },
+        {"msgseaport", new("Industry requires a Seas Port.", 0x08) },
+        {"msgairport", new("Commerce requires an Airport.", 0x09) },
+        {"msgpollution", new("Pollution very high.", 0x0A) },
+        {"msgcrime", new("Crime very high.", 0x0B) },
+        {"msgtraffic", new("Frequent traffic james reported.", 0x0C) },
+        {"msgfiredept", new("Citizens demand a Fire Department.", 0x0D) },
+        {"msgpolicedept", new("Citizens demand a Police Department.", 0x0E) },
+        {"msgblackouts", new("Blackouts reported. Check power map.", 0x0F) },
+        {"msgtax", new("Citizens upset. The tax rate is too high.", 0x10) },
+        {"msgdeteriorating", new("Roads deteriorating, due to lack of funds.", 0x11) },
+        {"msgfirefund", new("Fire departments need funding.", 0x12) },
+        {"msgpolicefund", new("Police departments need funding.", 0x13) },
+        {"msgshipwreck", new("Shipwreck reported!", 0x14) },
+        {"msg5years", new("5 years to complete scenario.", 0x15) },
+        {"msg4years", new("4 years to complete scenario.", 0x16) },
+        {"msg3years", new("3 years to complete scenario.", 0x17) },
+        {"msgexplosion", new("Explosion detected!", 0x18) },
+        {"msg2years", new("2 years to complete scenario.", 0x19) },
+        {"msg1year", new("1 year to complete scenario.", 0x1A) },
+        {"msgbrownouts", new("Brownouts, build another Power Plant.", 0x1B) },
+        {"msgheavytraffic", new("Heavy Traffic reported.", 0x1C) },
         //{"msgblank", new MessageAssociation("", 0x1D) },
-        {"msgunabletosave", new MessageAssociation("unable to save.", 0x1E) },
-        {"msgsaved", new MessageAssociation("Save completed.", 0x1F) },
-        {"msgonemoment", new MessageAssociation("One moment please...", 0x20) },
-        {"msggoodbye", new MessageAssociation("See you soon. Good bye!", 0x21) }
+        {"msgunabletosave", new("unable to save.", 0x1E) },
+        {"msgsaved", new("Save completed.", 0x1F) },
+        {"msgonemoment", new("One moment please...", 0x20) },
+        {"msggoodbye", new("See you soon. Good bye!", 0x21) }
     };
 
     public override EffectList Effects
