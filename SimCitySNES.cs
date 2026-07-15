@@ -820,7 +820,7 @@ public class SimCitySNES : SNESEffectPack
 
     public override bool StopAllEffects()
     {
-        bool success = base.StopAllEffects(); ;
+        bool success = base.StopAllEffects();
         try { success &= StopAll(); }
         catch { success = false; }
         return success;
