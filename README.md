@@ -1,5 +1,10 @@
 ﻿# SimCity
 
+## Pack metadata
+
+- Platform: `SNES`
+- Connector type: `SNESConnector`
+
 ## What this pack provides
 This Crowd Control pack integrates **SimCity** with Crowd Control through its SNES pack implementation. Its source defines the game-state checks and effect handling.
 
