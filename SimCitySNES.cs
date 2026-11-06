@@ -142,7 +142,7 @@ public class SimCitySNES : SNESEffectPack
         }
     }
 
-    private readonly Dictionary<string, GiftAssociation> _game_gifts = new(StringComparer.InvariantCultureIgnoreCase)
+    private static readonly Dictionary<string, GiftAssociation> _game_gifts = new(StringComparer.InvariantCultureIgnoreCase)
     {
         //SafeName, MessageName, giftID, messageID
         {"mayorhouse", new("Mayor House", 0x01, 0x2C) },
@@ -162,7 +162,7 @@ public class SimCitySNES : SNESEffectPack
         {"station", new("Train Station", 0x0F, 0x1A) }
     };
 
-    private readonly Dictionary<string, DisasterAssociation> _game_disasters = new(StringComparer.InvariantCultureIgnoreCase)
+    private static readonly Dictionary<string, DisasterAssociation> _game_disasters = new(StringComparer.InvariantCultureIgnoreCase)
     {
         //SafeName, MessageName, disasterID, disasterMessageID, disasterAddress, disasterCheck
         //disasterAddress tells us if that disaster is active or possible
@@ -184,7 +184,7 @@ public class SimCitySNES : SNESEffectPack
         //, 0x7E0A80 is a place holder to just let it trigger
     };
 
-    private readonly Dictionary<string, BuildingAssociation> _game_building = new(StringComparer.InvariantCultureIgnoreCase)
+    private static readonly Dictionary<string, BuildingAssociation> _game_building = new(StringComparer.InvariantCultureIgnoreCase)
     {
         //SafeName, BuildingName, BuildingID, BuildingUI, Cost
         {"bulldoze", new("Bulldoze", 0x00, 0x7E029B, 1) },
@@ -204,7 +204,7 @@ public class SimCitySNES : SNESEffectPack
         {"airport", new("Airport", 0x0C, 0x7E02A9, 10000) }
     };
 
-    private readonly Dictionary<string, MessageAssociation> _game_messages = new(StringComparer.InvariantCultureIgnoreCase)
+    private static readonly Dictionary<string, MessageAssociation> _game_messages = new(StringComparer.InvariantCultureIgnoreCase)
     {
         //SafeName, MessageName, MessageID
         {"msgresidental", new("More Residental Zones Needed.", 0x01) },
@@ -242,10 +242,10 @@ public class SimCitySNES : SNESEffectPack
         {"msggoodbye", new("See you soon. Good bye!", 0x21) }
     };
 
-    public override EffectList Effects
+    public override EffectList Effects { get; } = CreateEffects();
+
+    private static EffectList CreateEffects()
     {
-        get
-        {
             List<Effect> effects =
             [
                 new("Give Money", "givemoney") { Quantity = 9999, Alignment = (Alignment)Morality.SlightlyHelpful + Orderliness.Controlled },
@@ -308,7 +308,6 @@ public class SimCitySNES : SNESEffectPack
             //effects.AddRange(_game_messages.Take(33).Select(t => new Effect($"{t.Value.MessageName}", t.Key, ItemKind.Usable, "simCitySNESHelpfulMessage")));
 
             return effects;
-        }
     }
 
     public override ROMTable ROMTable => new[]
@@ -826,4 +825,3 @@ public class SimCitySNES : SNESEffectPack
         return success;
     }
 }
-
